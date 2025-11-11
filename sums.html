@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Addition Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style type="text/tailwindcss">
+        @layer utilities {
+            /* Header Selection Styles */
+            .header-col-selected {
+                @apply !bg-blue-500 !text-white shadow-md transform scale-105;
+            }
+            .header-row-selected {
+                @apply !bg-purple-500 !text-white shadow-md transform scale-105;
+            }
+
+            /* Cell Highlighting Logic */
+            
+            /* 1. Base Column Highlight (matches X-axis blue) */
+            .cell-col-highlight {
+                @apply bg-blue-50 text-blue-900;
+            }
+
+            /* 2. Base Row Highlight (matches Y-axis purple) */
+            .cell-row-highlight {
+                @apply bg-purple-50 text-purple-900;
+            }
+
+            /* 3. Overlapping Row & Col (Visual mix - usually overridden by intersection logic, but good fallback) */
+            .cell-cross-highlight {
+                @apply bg-indigo-50;
+            }
+
+            /* 4. Specific "10" Highlight (Green) */
+            .cell-ten-highlight {
+                @apply !bg-green-300 !text-green-900 font-bold border-green-400;
+            }
+
+            /* 5. The Intersection/Answer (Highest Priority) */
+            .cell-intersection {
+                @apply !bg-indigo-600 !text-white !font-bold !scale-110 shadow-lg border-indigo-700 z-10 relative;
+            }
+        }
+        
+        /* Custom transitions for smooth coloring */
+        td, th {
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800">
+
+    <div class="container mx-auto p-2 sm:p-4 min-h-screen flex flex-col items-center justify-center">
+
+        <!-- Main App Container -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-2xl w-full max-w-5xl border border-slate-200">
+            
+            <!-- Header Section -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">Addition Explorer</h1>
+                    <p class="text-slate-500 text-sm mt-1">Click the blue and purple numbers to find the sum.</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3">
+                    <button id="btn-tens" onclick="toggleTens()" class="flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-700 border-2 border-transparent hover:border-green-300">
+                        <i class="fas fa-star"></i> Highlight all 10s
+                    </button>
+                    <button onclick="clearAllHighlights()" class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-full font-bold text-sm hover:bg-red-100 transition-all border-2 border-transparent hover:border-red-200">
+                        <i class="fas fa-rotate-right"></i> Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result Display Area -->
+            <div class="bg-slate-100 rounded-xl p-4 mb-6 text-center h-20 flex items-center justify-center shadow-inner border border-slate-200">
+                <h2 id="equation-display" class="text-2xl sm:text-3xl font-bold text-slate-400">Select two numbers</h2>
+            </div>
+
+            <!-- The Grid -->
+            <div class="overflow-x-auto flex justify-center">
+                <table class="border-collapse">
+                    <thead>
+                        <tr>
+                            <!-- Corner "+" sign -->
+                            <th class="border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 text-xl font-bold text-slate-400 rounded-tl-xl bg-slate-50">+</th>
+                            
+                            <!-- X-Axis Headers (0-9) -->
+                            <!-- Generated via script to keep code clean, but explicitly written for clarity -->
+                            <th class="col-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-blue-100 text-blue-700 font-bold text-lg cursor-pointer hover:bg-blue-200" data-col="0">0</th>
+                            <th class="col-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-blue-100 text-blue-700 font-bold text-lg cursor-pointer hover:bg-blue-200" data-col="1">1</th>
+                            <th class="col-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-blue-100 text-blue-700 font-bold text-lg cursor-pointer hover:bg-blue-200" data-col="2">2</th>
+                            <th class="col-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-blue-100 text-blue-700 font-bold text-lg cursor-pointer hover:bg-blue-200" data-col="3">3</th>
+                            <th class="col-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-blue-100 text-blue-700 font-bold text-lg cursor-pointer hover:bg-blue-200" data-col="4">4</th>
+                            <th class="col-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-blue-100 text-blue-700 font-bold text-lg cursor-pointer hover:bg-blue-200" data-col="5">5</th>
+                            <th class="col-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-blue-100 text-blue-700 font-bold text-lg cursor-pointer hover:bg-blue-200" data-col="6">6</th>
+                            <th class="col-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-blue-100 text-blue-700 font-bold text-lg cursor-pointer hover:bg-blue-200" data-col="7">7</th>
+                            <th class="col-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-blue-100 text-blue-700 font-bold text-lg cursor-pointer hover:bg-blue-200" data-col="8">8</th>
+                            <th class="col-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-blue-100 text-blue-700 font-bold text-lg cursor-pointer hover:bg-blue-200 rounded-tr-xl" data-col="9">9</th>
+                        </tr>
+                    </thead>
+                    <tbody id="grid-body">
+                        <!-- Rows generated by JS for brevity and easier management -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-6 text-center text-slate-400 text-sm">
+                <p>Tip: Try to find all the ways to make 10!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State ---
+        let selectedCol = null;
+        let selectedRow = null;
+        let tensHighlighted = false;
+
+        // --- Initialization ---
+        const gridBody = document.getElementById('grid-body');
+        const equationDisplay = document.getElementById('equation-display');
+        const btnTens = document.getElementById('btn-tens');
+
+        // Generate Grid Rows
+        for (let r = 0; r <= 9; r++) {
+            const tr = document.createElement('tr');
+            
+            // Row Header (Y-Axis)
+            const th = document.createElement('th');
+            th.className = `row-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-purple-100 text-purple-700 font-bold text-lg cursor-pointer hover:bg-purple-200 transition-all ${r === 9 ? 'rounded-bl-xl' : ''}`;
+            th.textContent = r;
+            th.dataset.row = r;
+            th.onclick = () => handleRowClick(r);
+            tr.appendChild(th);
+
+            // Cells
+            for (let c = 0; c <= 9; c++) {
+                const sum = r + c;
+                const td = document.createElement('td');
+                // Base cell classes
+                td.className = `cell border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 font-medium text-lg text-slate-600 text-center transition-all cursor-default ${r === 9 && c === 9 ? 'rounded-br-xl' : ''}`;
+                td.textContent = sum;
+                td.dataset.row = r;
+                td.dataset.col = c;
+                td.dataset.sum = sum;
+                tr.appendChild(td);
+            }
+            gridBody.appendChild(tr);
+        }
+
+        // Add Click Listeners to Column Headers
+        document.querySelectorAll('.col-header').forEach(el => {
+            el.onclick = () => handleColClick(parseInt(el.dataset.col));
+        });
+
+        // --- Interaction Handlers ---
+
+        function handleColClick(colIndex) {
+            // Toggle: if clicking same column, deselect it
+            if (selectedCol === colIndex) {
+                selectedCol = null;
+            } else {
+                selectedCol = colIndex;
+            }
+            updateUI();
+        }
+
+        function handleRowClick(rowIndex) {
+            // Toggle: if clicking same row, deselect it
+            if (selectedRow === rowIndex) {
+                selectedRow = null;
+            } else {
+                selectedRow = rowIndex;
+            }
+            updateUI();
+        }
+
+        function toggleTens() {
+            tensHighlighted = !tensHighlighted;
+            
+            // Update Button Style
+            if (tensHighlighted) {
+                btnTens.className = "flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all bg-green-500 text-white shadow-md border-2 border-green-600";
+            } else {
+                btnTens.className = "flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-700 border-2 border-transparent hover:border-green-300";
+            }
+            
+            updateUI();
+        }
+
+        function clearAllHighlights() {
+            selectedCol = null;
+            selectedRow = null;
+            tensHighlighted = false;
+            
+            // Reset button style
+            btnTens.className = "flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-700 border-2 border-transparent hover:border-green-300";
+
+            updateUI();
+        }
+
+        // --- Core Rendering Logic ---
+
+        function updateUI() {
+            // 1. Update Header Styles
+            document.querySelectorAll('.col-header').forEach(h => {
+                const c = parseInt(h.dataset.col);
+                if (c === selectedCol) {
+                    h.classList.add('header-col-selected');
+                    h.classList.remove('bg-blue-100', 'text-blue-700');
+                } else {
+                    h.classList.remove('header-col-selected');
+                    h.classList.add('bg-blue-100', 'text-blue-700');
+                }
+            });
+
+            document.querySelectorAll('.row-header').forEach(h => {
+                const r = parseInt(h.dataset.row);
+                if (r === selectedRow) {
+                    h.classList.add('header-row-selected');
+                    h.classList.remove('bg-purple-100', 'text-purple-700');
+                } else {
+                    h.classList.remove('header-row-selected');
+                    h.classList.add('bg-purple-100', 'text-purple-700');
+                }
+            });
+
+            // 2. Update Cell Styles (The Logic Engine)
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                const r = parseInt(cell.dataset.row);
+                const c = parseInt(cell.dataset.col);
+                const sum = parseInt(cell.dataset.sum);
+
+                // Reset custom classes first (keep base classes)
+                cell.classList.remove('cell-col-highlight', 'cell-row-highlight', 'cell-ten-highlight', 'cell-intersection', 'bg-slate-50');
+
+                // PRIORITY 1: Intersection (Both Row & Col selected)
+                if (r === selectedRow && c === selectedCol) {
+                    cell.classList.add('cell-intersection');
+                    return; // Stop checking other styles for this cell
+                }
+
+                // PRIORITY 2: Tens Highlight (if enabled and sum is 10)
+                if (tensHighlighted && sum === 10) {
+                    cell.classList.add('cell-ten-highlight');
+                    return; // Stop checking other styles
+                }
+
+                // PRIORITY 3: Row or Column Highlights
+                if (c === selectedCol) {
+                    cell.classList.add('cell-col-highlight');
+                } else if (r === selectedRow) {
+                    cell.classList.add('cell-row-highlight');
+                }
+            });
+
+            // 3. Update Equation Text
+            if (selectedRow !== null && selectedCol !== null) {
+                const sum = selectedRow + selectedCol;
+                // Using colors in text to reinforce the X/Y concept
+                equationDisplay.innerHTML = `<span class="text-purple-600">${selectedRow}</span> + <span class="text-blue-600">${selectedCol}</span> = <span class="text-indigo-600 font-extrabold">${sum}</span>`;
+                equationDisplay.classList.remove('text-slate-400');
+            } else if (selectedRow !== null) {
+                equationDisplay.innerHTML = `<span class="text-purple-600">${selectedRow}</span> + ?`;
+                equationDisplay.classList.remove('text-slate-400');
+            } else if (selectedCol !== null) {
+                equationDisplay.innerHTML = `? + <span class="text-blue-600">${selectedCol}</span>`;
+                equationDisplay.classList.remove('text-slate-400');
+            } else {
+                equationDisplay.innerHTML = 'Select two numbers';
+                equationDisplay.classList.add('text-slate-400');
+            }
+        }
+    </script>
+</body>
+</html>
