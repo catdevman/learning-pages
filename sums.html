@@ -9,45 +9,81 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style type="text/tailwindcss">
         @layer utilities {
-            /* Header Selection Styles */
+            /* --- Header Selection Styles --- */
             .header-col-selected {
                 @apply !bg-blue-500 !text-white shadow-md transform scale-105;
             }
             .header-row-selected {
                 @apply !bg-purple-500 !text-white shadow-md transform scale-105;
             }
+            /* Locked header for Practice Mode */
+            .header-locked {
+                @apply !bg-blue-700 !text-white shadow-inner cursor-not-allowed;
+            }
 
-            /* Cell Highlighting Logic */
+            /* --- Cell Highlighting Logic --- */
             
             /* 1. Base Column Highlight (matches X-axis blue) */
             .cell-col-highlight {
                 @apply bg-blue-50 text-blue-900;
             }
-
             /* 2. Base Row Highlight (matches Y-axis purple) */
             .cell-row-highlight {
                 @apply bg-purple-50 text-purple-900;
             }
 
-            /* 3. Overlapping Row & Col (Visual mix - usually overridden by intersection logic, but good fallback) */
-            .cell-cross-highlight {
-                @apply bg-indigo-50;
-            }
-
-            /* 4. Specific "10" Highlight (Green) */
+            /* 3. "10" Highlight (Explore Mode) */
             .cell-ten-highlight {
                 @apply !bg-green-300 !text-green-900 font-bold border-green-400;
             }
 
-            /* 5. The Intersection/Answer (Highest Priority) */
+            /* 4. Intersection/Answer (Explore Mode) */
             .cell-intersection {
                 @apply !bg-indigo-600 !text-white !font-bold !scale-110 shadow-lg border-indigo-700 z-10 relative;
+            }
+
+            /* --- Game Mode Cell Styles --- */
+            
+            /* 5. Found Pair (Discovery Mode) */
+            .cell-found {
+                @apply !bg-green-500 !text-white !font-bold !border-green-600 shadow-md;
+            }
+
+            /* 6. Correct/Incorrect Flash Animation */
+            .cell-correct-flash {
+                animation: correct-flash 0.5s ease-out;
+            }
+            .cell-incorrect-flash {
+                animation: incorrect-flash 0.5s ease-out;
+            }
+            @keyframes correct-flash {
+                0%, 100% { @apply !bg-indigo-600 !text-white; }
+                50% { @apply !bg-green-400 !text-white !scale-125; }
+            }
+            @keyframes incorrect-flash {
+                0%, 100% { @apply bg-white; }
+                50% { @apply !bg-red-400 !text-white !scale-125; }
+            }
+
+            /* --- Mode Selector Button Styles --- */
+            .mode-btn {
+                @apply px-4 py-2 rounded-lg font-bold text-sm transition-all border-2;
+            }
+            .mode-btn-active {
+                @apply bg-indigo-600 text-white border-indigo-700 shadow-md;
+            }
+            .mode-btn-inactive {
+                @apply bg-slate-100 text-slate-600 border-transparent hover:bg-slate-200;
             }
         }
         
         /* Custom transitions for smooth coloring */
         td, th {
             transition: all 0.2s ease-in-out;
+        }
+        /* Ensure input number is styled */
+        #discovery-target {
+            @apply w-16 text-center font-bold text-lg text-indigo-600 border-2 border-slate-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500;
         }
     </style>
 </head>
@@ -59,27 +95,60 @@
         <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-2xl w-full max-w-5xl border border-slate-200">
             
             <!-- Header Section -->
-            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
                 <div>
                     <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">Addition Explorer</h1>
-                    <p class="text-slate-500 text-sm mt-1">Click the blue and purple numbers to find the sum.</p>
+                    <p id="subtitle" class="text-slate-500 text-sm mt-1">Click the blue and purple numbers to find the sum.</p>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="flex gap-3">
-                    <button id="btn-tens" onclick="toggleTens()" class="flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-700 border-2 border-transparent hover:border-green-300">
-                        <i class="fas fa-star"></i> Highlight all 10s
+                <!-- Mode Selector -->
+                <div class="flex gap-2 p-2 bg-slate-100 rounded-xl">
+                    <button id="btn-mode-explore" onclick="setMode('explore')" class="mode-btn">
+                        <i class="fas fa-search-plus mr-1"></i> Explore
                     </button>
-                    <button onclick="clearAllHighlights()" class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-full font-bold text-sm hover:bg-red-100 transition-all border-2 border-transparent hover:border-red-200">
-                        <i class="fas fa-rotate-right"></i> Clear
+                    <button id="btn-mode-practice" onclick="setMode('practice')" class="mode-btn">
+                        <i class="fas fa-tasks mr-1"></i> Practice
+                    </button>
+                    <button id="btn-mode-discovery" onclick="setMode('discovery')" class="mode-btn">
+                        <i class="fas fa-lightbulb mr-1"></i> Discovery
                     </button>
                 </div>
             </div>
 
             <!-- Result Display Area -->
-            <div class="bg-slate-100 rounded-xl p-4 mb-6 text-center h-20 flex items-center justify-center shadow-inner border border-slate-200">
+            <div class="bg-slate-100 rounded-xl p-4 mb-4 text-center h-20 flex items-center justify-center shadow-inner border border-slate-200">
                 <h2 id="equation-display" class="text-2xl sm:text-3xl font-bold text-slate-400">Select two numbers</h2>
             </div>
+
+            <!-- Dynamic Controls Area -->
+            <div class="flex justify-center items-center gap-4 mb-4 min-h-[44px]">
+                <!-- Explore Mode Controls -->
+                <div id="explore-controls" class="flex gap-3">
+                    <button id="btn-tens" onclick="toggleTens()" class="flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-700 border-2 border-transparent hover:border-green-300">
+                        <i class="fas fa-star"></i> Highlight all 10s
+                    </button>
+                    <button onclick="clearSelection()" class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-full font-bold text-sm hover:bg-red-100 transition-all border-2 border-transparent hover:border-red-200">
+                        <i class="fas fa-rotate-right"></i> Clear
+                    </button>
+                </div>
+                
+                <!-- Practice Mode Controls -->
+                <div id="practice-controls" class="hidden">
+                    <button onclick="setupPracticeMode()" class="flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all bg-blue-100 text-blue-700 hover:bg-blue-200 border-2 border-transparent hover:border-blue-300">
+                        <i class="fas fa-forward"></i> New Challenge
+                    </button>
+                </div>
+
+                <!-- Discovery Mode Controls -->
+                <div id="discovery-controls" class="hidden flex items-center gap-3">
+                    <label for="discovery-target" class="font-bold text-slate-600">Find pairs that make:</label>
+                    <input type="number" id="discovery-target" value="10" min="0" max="18" onchange="setupDiscoveryMode()">
+                    <button onclick="setupDiscoveryMode()" class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-full font-bold text-sm hover:bg-red-100 transition-all border-2 border-transparent hover:border-red-200">
+                        <i class="fas fa-rotate-right"></i> Reset
+                    </button>
+                </div>
+            </div>
+
 
             <!-- The Grid -->
             <div class="overflow-x-auto flex justify-center">
@@ -90,7 +159,6 @@
                             <th class="border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 text-xl font-bold text-slate-400 rounded-tl-xl bg-slate-50">+</th>
                             
                             <!-- X-Axis Headers (0-9) -->
-                            <!-- Generated via script to keep code clean, but explicitly written for clarity -->
                             <th class="col-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-blue-100 text-blue-700 font-bold text-lg cursor-pointer hover:bg-blue-200" data-col="0">0</th>
                             <th class="col-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-blue-100 text-blue-700 font-bold text-lg cursor-pointer hover:bg-blue-200" data-col="1">1</th>
                             <th class="col-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-blue-100 text-blue-700 font-bold text-lg cursor-pointer hover:bg-blue-200" data-col="2">2</th>
@@ -104,177 +172,387 @@
                         </tr>
                     </thead>
                     <tbody id="grid-body">
-                        <!-- Rows generated by JS for brevity and easier management -->
+                        <!-- Rows generated by JS -->
                     </tbody>
                 </table>
             </div>
 
             <div class="mt-6 text-center text-slate-400 text-sm">
-                <p>Tip: Try to find all the ways to make 10!</p>
+                <p id="tip-text">Tip: Try to find all the ways to make 10!</p>
             </div>
         </div>
     </div>
 
     <script>
-        // --- State ---
+        // --- Global State ---
+        let currentMode = 'explore';
         let selectedCol = null;
         let selectedRow = null;
         let tensHighlighted = false;
+        
+        // Game state
+        let practiceChallenge = { x: 0, y: 0, z: 0 };
+        let discoveryTarget = 10;
+        let foundPairs = []; // Stores "col,row" strings
+        let discoveryTotalPairs = 0;
 
-        // --- Initialization ---
+        // --- Element Refs ---
         const gridBody = document.getElementById('grid-body');
         const equationDisplay = document.getElementById('equation-display');
+        const subtitle = document.getElementById('subtitle');
+        const tipText = document.getElementById('tip-text');
+        
         const btnTens = document.getElementById('btn-tens');
+        const modeButtons = {
+            explore: document.getElementById('btn-mode-explore'),
+            practice: document.getElementById('btn-mode-practice'),
+            discovery: document.getElementById('btn-mode-discovery')
+        };
+        const controlGroups = {
+            explore: document.getElementById('explore-controls'),
+            practice: document.getElementById('practice-controls'),
+            discovery: document.getElementById('discovery-controls')
+        };
+        const discoveryTargetInput = document.getElementById('discovery-target');
 
-        // Generate Grid Rows
-        for (let r = 0; r <= 9; r++) {
-            const tr = document.createElement('tr');
-            
-            // Row Header (Y-Axis)
-            const th = document.createElement('th');
-            th.className = `row-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-purple-100 text-purple-700 font-bold text-lg cursor-pointer hover:bg-purple-200 transition-all ${r === 9 ? 'rounded-bl-xl' : ''}`;
-            th.textContent = r;
-            th.dataset.row = r;
-            th.onclick = () => handleRowClick(r);
-            tr.appendChild(th);
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Generate Grid
+            for (let r = 0; r <= 9; r++) {
+                const tr = document.createElement('tr');
+                
+                // Row Header (Y-Axis)
+                const th = document.createElement('th');
+                th.className = `row-header border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 bg-purple-100 text-purple-700 font-bold text-lg cursor-pointer hover:bg-purple-200 transition-all ${r === 9 ? 'rounded-bl-xl' : ''}`;
+                th.textContent = r;
+                th.dataset.row = r;
+                th.onclick = () => handleRowClick(r);
+                tr.appendChild(th);
 
-            // Cells
-            for (let c = 0; c <= 9; c++) {
-                const sum = r + c;
-                const td = document.createElement('td');
-                // Base cell classes
-                td.className = `cell border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 font-medium text-lg text-slate-600 text-center transition-all cursor-default ${r === 9 && c === 9 ? 'rounded-br-xl' : ''}`;
-                td.textContent = sum;
-                td.dataset.row = r;
-                td.dataset.col = c;
-                td.dataset.sum = sum;
-                tr.appendChild(td);
+                // Cells
+                for (let c = 0; c <= 9; c++) {
+                    const sum = r + c;
+                    const td = document.createElement('td');
+                    td.className = `cell border-2 border-slate-200 p-1 w-8 h-8 sm:w-12 sm:h-12 font-medium text-lg text-slate-600 text-center transition-all ${r === 9 && c === 9 ? 'rounded-br-xl' : ''}`;
+                    td.textContent = sum;
+                    td.dataset.row = r;
+                    td.dataset.col = c;
+                    td.dataset.sum = sum;
+                    tr.appendChild(td);
+                }
+                gridBody.appendChild(tr);
             }
-            gridBody.appendChild(tr);
+
+            // Add Click Listeners to Column Headers
+            document.querySelectorAll('.col-header').forEach(el => {
+                el.onclick = () => handleColClick(parseInt(el.dataset.col));
+            });
+
+            // Set initial mode
+            setMode('explore');
+        });
+
+        // --- Mode Switching ---
+
+        function setMode(mode) {
+            currentMode = mode;
+            clearSelection(); // Reset selections
+            
+            // Update Mode Button Styles
+            for (const key in modeButtons) {
+                if (key === mode) {
+                    modeButtons[key].classList.add('mode-btn-active');
+                    modeButtons[key].classList.remove('mode-btn-inactive');
+                } else {
+                    modeButtons[key].classList.remove('mode-btn-active');
+                    modeButtons[key].classList.add('mode-btn-inactive');
+                }
+            }
+
+            // Update Visible Controls
+            for (const key in controlGroups) {
+                controlGroups[key].style.display = (key === mode) ? 'flex' : 'none';
+            }
+
+            // Run mode-specific setup
+            switch (mode) {
+                case 'explore':
+                    setupExploreMode();
+                    break;
+                case 'practice':
+                    setupPracticeMode();
+                    break;
+                case 'discovery':
+                    setupDiscoveryMode();
+                    break;
+            }
+            updateUI();
         }
 
-        // Add Click Listeners to Column Headers
-        document.querySelectorAll('.col-header').forEach(el => {
-            el.onclick = () => handleColClick(parseInt(el.dataset.col));
-        });
+        function setupExploreMode() {
+            subtitle.textContent = "Click the blue and purple numbers to find the sum.";
+            tipText.textContent = "Tip: Try to find all the ways to make 10!";
+        }
+
+        function setupPracticeMode() {
+            // Generate a new random challenge
+            const x = Math.floor(Math.random() * 10);
+            const y = Math.floor(Math.random() * 10);
+            practiceChallenge = { x, y, z: x + y };
+            
+            // Lock the column
+            selectedCol = practiceChallenge.x;
+            selectedRow = null;
+            
+            subtitle.textContent = "Find the missing number on the purple (Y) axis.";
+            tipText.textContent = "Click the correct purple number to solve the equation.";
+            updateUI(); // Update display with new challenge
+        }
+
+        function setupDiscoveryMode() {
+            discoveryTarget = parseInt(discoveryTargetInput.value) || 0;
+            if (discoveryTarget > 18) discoveryTarget = 18;
+            if (discoveryTarget < 0) discoveryTarget = 0;
+            discoveryTargetInput.value = discoveryTarget; // Sanitize input
+
+            foundPairs = []; // Clear found pairs
+            selectedCol = null;
+            selectedRow = null;
+            
+            // --- NEW: Calculate total pairs ---
+            let seenPairs = new Set();
+            for (let c = 0; c <= 9; c++) {
+                for (let r = 0; r <= 9; r++) {
+                    if (c + r === discoveryTarget) {
+                        const pairString = [c, r].sort().toString();
+                        seenPairs.add(pairString);
+                    }
+                }
+            }
+            discoveryTotalPairs = seenPairs.size;
+            // --- END NEW ---
+            
+            subtitle.textContent = "Click any two numbers that add up to the target.";
+            
+            // --- NEW Tip Text ---
+            if (discoveryTotalPairs > 0) {
+                 tipText.textContent = `There are ${discoveryTotalPairs} unique pairs to find for ${discoveryTarget}. Go!`;
+            } else {
+                 tipText.textContent = `There are no pairs that make ${discoveryTarget} using numbers 0-9.`;
+            }
+            
+            updateUI();
+        }
 
         // --- Interaction Handlers ---
 
         function handleColClick(colIndex) {
-            // Toggle: if clicking same column, deselect it
-            if (selectedCol === colIndex) {
-                selectedCol = null;
-            } else {
-                selectedCol = colIndex;
+            switch (currentMode) {
+                case 'explore':
+                case 'discovery':
+                    selectedCol = (selectedCol === colIndex) ? null : colIndex;
+                    break;
+                case 'practice':
+                    // Column is locked, do nothing.
+                    return;
             }
             updateUI();
         }
 
         function handleRowClick(rowIndex) {
-            // Toggle: if clicking same row, deselect it
-            if (selectedRow === rowIndex) {
-                selectedRow = null;
-            } else {
-                selectedRow = rowIndex;
+             switch (currentMode) {
+                case 'explore':
+                    selectedRow = (selectedRow === rowIndex) ? null : rowIndex;
+                    break;
+                case 'practice':
+                    // This is the guess
+                    checkPracticeAnswer(rowIndex);
+                    return; // Don't run standard updateUI
+                case 'discovery':
+                    selectedRow = (selectedRow === rowIndex) ? null : rowIndex;
+                    break;
             }
             updateUI();
         }
 
+        function checkPracticeAnswer(guessedRow) {
+            const isCorrect = (guessedRow === practiceChallenge.y);
+            const cell = document.querySelector(`.cell[data-row="${guessedRow}"][data-col="${practiceChallenge.x}"]`);
+
+            if (isCorrect) {
+                selectedRow = guessedRow; // Show the final correct state
+                updateUI(); // Redraw UI in its "correct" state
+                
+                // Flash green
+                cell.classList.add('cell-correct-flash');
+                equationDisplay.innerHTML = `<span class="text-green-600 font-extrabold">Correct!</span>`;
+                
+                // Remove flash class and load next challenge
+                setTimeout(() => {
+                    cell.classList.remove('cell-correct-flash');
+                    setupPracticeMode();
+                }, 1200);
+
+            } else {
+                // Flash red
+                if (cell) {
+                    cell.classList.add('cell-incorrect-flash');
+                    setTimeout(() => cell.classList.remove('cell-incorrect-flash'), 500);
+                }
+                equationDisplay.innerHTML = `<span class="text-red-600">Not quite! Try again.</span>`;
+                // Reset equation display
+                setTimeout(() => updateUI(), 1000);
+            }
+        }
+
         function toggleTens() {
+            if (currentMode !== 'explore') return;
             tensHighlighted = !tensHighlighted;
             
-            // Update Button Style
             if (tensHighlighted) {
                 btnTens.className = "flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all bg-green-500 text-white shadow-md border-2 border-green-600";
             } else {
                 btnTens.className = "flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-700 border-2 border-transparent hover:border-green-300";
             }
-            
             updateUI();
         }
 
-        function clearAllHighlights() {
+        function clearSelection() {
             selectedCol = null;
             selectedRow = null;
-            tensHighlighted = false;
-            
-            // Reset button style
-            btnTens.className = "flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-700 border-2 border-transparent hover:border-green-300";
-
-            updateUI();
+            if (tensHighlighted) { // Only toggle if it's on
+                toggleTens();
+            }
+            // Don't reset game state here, setMode does that.
+            if(currentMode === 'explore') {
+                updateUI();
+            }
         }
 
         // --- Core Rendering Logic ---
 
         function updateUI() {
-            // 1. Update Header Styles
+            
+            // --- 1. Update Header Styles ---
             document.querySelectorAll('.col-header').forEach(h => {
                 const c = parseInt(h.dataset.col);
-                if (c === selectedCol) {
+                h.classList.remove('header-col-selected', 'header-locked', 'bg-blue-100', 'text-blue-700');
+
+                if (currentMode === 'practice' && c === practiceChallenge.x) {
+                    h.classList.add('header-locked');
+                } else if (c === selectedCol) {
                     h.classList.add('header-col-selected');
-                    h.classList.remove('bg-blue-100', 'text-blue-700');
                 } else {
-                    h.classList.remove('header-col-selected');
                     h.classList.add('bg-blue-100', 'text-blue-700');
                 }
             });
 
             document.querySelectorAll('.row-header').forEach(h => {
                 const r = parseInt(h.dataset.row);
+                h.classList.remove('header-row-selected', 'bg-purple-100', 'text-purple-700');
                 if (r === selectedRow) {
                     h.classList.add('header-row-selected');
-                    h.classList.remove('bg-purple-100', 'text-purple-700');
                 } else {
-                    h.classList.remove('header-row-selected');
                     h.classList.add('bg-purple-100', 'text-purple-700');
                 }
             });
 
-            // 2. Update Cell Styles (The Logic Engine)
+            // --- 2. Update Cell Styles ---
             const cells = document.querySelectorAll('.cell');
             cells.forEach(cell => {
                 const r = parseInt(cell.dataset.row);
                 const c = parseInt(cell.dataset.col);
                 const sum = parseInt(cell.dataset.sum);
 
-                // Reset custom classes first (keep base classes)
-                cell.classList.remove('cell-col-highlight', 'cell-row-highlight', 'cell-ten-highlight', 'cell-intersection', 'bg-slate-50');
+                // Reset all dynamic classes
+                cell.classList.remove('cell-col-highlight', 'cell-row-highlight', 'cell-ten-highlight', 'cell-intersection', 'cell-found');
 
-                // PRIORITY 1: Intersection (Both Row & Col selected)
+                // --- Mode-Specific Cell Logic ---
+
+                // Discovery Mode: Highlight found pairs first
+                if (currentMode === 'discovery') {
+                    const pairString = [c, r].sort().toString();
+                    if (foundPairs.includes(pairString)) {
+                        cell.classList.add('cell-found');
+                        // return; // Don't return, allow intersection to show over it
+                    }
+                }
+
+                // Explore Mode: Highlight 10s
+                if (currentMode === 'explore' && tensHighlighted && sum === 10) {
+                    cell.classList.add('cell-ten-highlight');
+                    // return; // Allow intersection to show over it
+                }
+
+                // --- General Highlighting (All Modes) ---
+                
+                // Intersection (Highest Priority)
                 if (r === selectedRow && c === selectedCol) {
                     cell.classList.add('cell-intersection');
-                    return; // Stop checking other styles for this cell
                 }
-
-                // PRIORITY 2: Tens Highlight (if enabled and sum is 10)
-                if (tensHighlighted && sum === 10) {
-                    cell.classList.add('cell-ten-highlight');
-                    return; // Stop checking other styles
-                }
-
-                // PRIORITY 3: Row or Column Highlights
-                if (c === selectedCol) {
+                // Row/Col Highlights (Lowest Priority)
+                else if (c === selectedCol) {
                     cell.classList.add('cell-col-highlight');
                 } else if (r === selectedRow) {
                     cell.classList.add('cell-row-highlight');
                 }
             });
 
-            // 3. Update Equation Text
-            if (selectedRow !== null && selectedCol !== null) {
-                const sum = selectedRow + selectedCol;
-                // Using colors in text to reinforce the X/Y concept
-                equationDisplay.innerHTML = `<span class="text-purple-600">${selectedRow}</span> + <span class="text-blue-600">${selectedCol}</span> = <span class="text-indigo-600 font-extrabold">${sum}</span>`;
-                equationDisplay.classList.remove('text-slate-400');
-            } else if (selectedRow !== null) {
-                equationDisplay.innerHTML = `<span class="text-purple-600">${selectedRow}</span> + ?`;
-                equationDisplay.classList.remove('text-slate-400');
-            } else if (selectedCol !== null) {
-                equationDisplay.innerHTML = `? + <span class="text-blue-600">${selectedCol}</span>`;
-                equationDisplay.classList.remove('text-slate-400');
-            } else {
-                equationDisplay.innerHTML = 'Select two numbers';
-                equationDisplay.classList.add('text-slate-400');
+            // --- 3. Update Equation Text ---
+            switch (currentMode) {
+                case 'explore':
+                    if (selectedRow !== null && selectedCol !== null) {
+                        const sum = selectedRow + selectedCol;
+                        equationDisplay.innerHTML = `<span class="text-purple-600">${selectedRow}</span> + <span class="text-blue-600">${selectedCol}</span> = <span class="text-indigo-600 font-extrabold">${sum}</span>`;
+                    } else if (selectedRow !== null) {
+                        equationDisplay.innerHTML = `<span class="text-purple-600">${selectedRow}</span> + ?`;
+                    } else if (selectedCol !== null) {
+                        equationDisplay.innerHTML = `? + <span class="text-blue-600">${selectedCol}</span>`;
+                    } else {
+                        equationDisplay.innerHTML = 'Select two numbers';
+                    }
+                    break;
+                
+                case 'practice':
+                    equationDisplay.innerHTML = `<span class="text-blue-600">${practiceChallenge.x}</span> + ? = <span class="text-indigo-600 font-extrabold">${practiceChallenge.z}</span>`;
+                    break;
+                
+                case 'discovery':
+                    let justCompleted = false; // Flag to prevent "Find pairs" from overwriting "Complete!"
+                    if (selectedRow !== null && selectedCol !== null) {
+                        const sum = selectedRow + selectedCol;
+                        if (sum === discoveryTarget) {
+                            // Correct pair
+                            const pairString = [selectedCol, selectedRow].sort().toString();
+                            if (!foundPairs.includes(pairString)) {
+                                // --- NEW FIND ---
+                                foundPairs.push(pairString);
+                                
+                                if (foundPairs.length === discoveryTotalPairs && discoveryTotalPairs > 0) {
+                                    // --- GAME COMPLETE ---
+                                    equationDisplay.innerHTML = `<span class="text-green-600 font-extrabold">Complete! All ${discoveryTotalPairs} pairs found for ${discoveryTarget}!</span>`;
+                                    justCompleted = true;
+                                    setTimeout(setupDiscoveryMode, 2000); // 2s delay
+                                } else {
+                                    // --- Still more to find ---
+                                    equationDisplay.innerHTML = `<span class="text-green-600 font-extrabold">Yes!</span> ${foundPairs.length} of ${discoveryTotalPairs} found.`;
+                                }
+                            } else {
+                                // --- Already found ---
+                                equationDisplay.innerHTML = `<span class="text-green-600">Already found!</span> <span class="text-purple-600">${selectedRow}</span> + <span class="text-blue-600">${selectedCol}</span> = ${sum}`;
+                            }
+                        } else {
+                            // Incorrect pair
+                            equationDisplay.innerHTML = `<span class="text-red-600">Nope.</span> <span class="text-purple-600">${selectedRow}</span> + <span class="text-blue-600">${selectedCol}</span> = <span class="text-red-600 font-extrabold">${sum}</span>`;
+                        }
+                    } else {
+                        // Default text
+                        if (!justCompleted) { // Don't overwrite completion message
+                            let progressText = (discoveryTotalPairs > 0) ? `(${foundPairs.length} / ${discoveryTotalPairs} found)` : '';
+                            equationDisplay.innerHTML = `Find pairs for <span class="text-indigo-600 font-extrabold">${discoveryTarget}</span> ${progressText}`;
+                        }
+                    }
+                    break;
             }
         }
     </script>
