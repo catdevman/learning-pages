@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 29: Working with Numbers Up to 40</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the tag inputs to mimic the workbook design */
+        .tag-input {
+            width: 5rem;
+            height: 5rem;
+            text-align: center;
+            font-size: 1.5rem;
+            border: 2px solid #a0a0a0;
+            border-radius: 0.5rem;
+            background-color: #f7f3ed;
+            transition: border-color 0.3s, background-color 0.3s;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+        }
+
+        /* Styles for Flower Math */
+        .flower-petal {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2.8rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+            background-color: #e0f2fe; /* light blue */
+            border: 1px solid #000000;
+        }
+
+        .flower-center {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 3.8rem;
+            font-size: 2rem;
+            font-weight: bold;
+            background-color: #fca5a5; /* light red */
+            border: 2px solid #000000;
+        }
+
+        /* Validation Colors */
+        .correct {
+            border-color: #10b981 !important; /* emerald-500 */
+            background-color: #d1fae5 !important; /* green-100 */
+        }
+        .incorrect {
+            border-color: #ef4444 !important; /* red-500 */
+            background-color: #fee2e2 !important; /* red-100 */
+        }
+        .calendar-input {
+            width: 100%;
+            text-align: center;
+            border: 1px solid #ccc;
+            height: 100%;
+            font-weight: bold;
+            transition: border-color 0.3s;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-6 font-sans">
+
+    <header class="text-center mb-8">
+        <h1 class="text-4xl font-extrabold text-blue-700">Lesson 29</h1>
+        <h2 class="text-2xl font-semibold text-gray-600">WORKING WITH NUMBERS UP TO 40</h2>
+    </header>
+
+    <section class="mb-10 p-6 bg-yellow-100 rounded-lg shadow-md">
+        <h3 class="text-xl font-bold text-yellow-800 mb-4">Warm-Up & Review</h3>
+        <p class="mb-2">* Have the child practice items that are not mastered.</p>
+        <p class="mb-4">**Teacher Note (Spelling):** Spell ONE, TWO, and THREE aloud. The teacher will make this section interactive, possibly with a video or dictation exercise.</p>
+        <p class="mb-4">* Count by 10s from **150 to 300**.</p>
+    </section>
+    
+    <hr class="my-8">
+
+    <section class="mb-10 p-6 bg-white rounded-lg shadow-xl">
+        <h3 class="text-2xl font-bold text-indigo-700 mb-4">🏷️ Activity 1: Ella's Tags (30 to 39)</h3>
+        <p class="mb-6 italic">Ella has 10 tags, and she needs to write the numbers 30 to 39 on them. Write the numbers on the tags below.</p>
+        
+        <div id="tags-container" class="grid grid-cols-5 md:grid-cols-10 gap-4 justify-items-center">
+            </div>
+    </section>
+
+    <hr class="my-8">
+
+    <section class="mb-10 p-6 bg-white rounded-lg shadow-xl">
+        <h3 class="text-2xl font-bold text-indigo-700 mb-4">🌸 Activity 2: Flower Math Review</h3>
+        <p class="mb-6 italic">The numbers in each set of overlapping petals need to add up to equal the number in the center (**6**). Fill in the missing numbers.</p>
+        
+        <div class="flex flex-col items-center space-y-4">
+            <div class="relative flex items-center justify-center">
+                <div class="flower-center flex items-center justify-center text-4xl">6</div>
+                <div class="absolute top-0 right-0 transform translate-x-20 translate-y-20 flex space-x-2">
+                    <input type="text" class="flower-petal text-center" data-answer="3" data-sum="6" data-partner="1">
+                    <div class="flower-petal flex items-center justify-center text-gray-700">3</div>
+                </div>
+                <div class="absolute top-0 left-0 transform -translate-x-20 translate-y-20 flex space-x-2">
+                    <div class="flower-petal flex items-center justify-center text-gray-700">1</div>
+                    <input type="text" class="flower-petal text-center" data-answer="5" data-sum="6" data-partner="1">
+                </div>
+            </div>
+            
+            <p class="text-lg font-semibold mt-8">More Petal Sets:</p>
+
+            <div id="flower-math-container" class="grid grid-cols-3 gap-6 text-center">
+                <div class="p-3 border rounded shadow bg-green-50">
+                    <p class="mb-2 text-sm">Petal 1</p>
+                    <input type="text" class="flower-petal mx-auto mb-2 text-center border-2" data-answer="1" data-sum="6" data-partner="5">
+                    <p class="text-2xl font-bold">+</p>
+                    <div class="flower-petal mx-auto my-2 flex items-center justify-center bg-gray-200">5</div>
+                    <p class="text-2xl font-bold">=</p>
+                    <div class="flower-center mx-auto mt-2 flex items-center justify-center bg-red-300 text-3xl">6</div>
+                </div>
+                <div class="p-3 border rounded shadow bg-green-50">
+                    <p class="mb-2 text-sm">Petal 1</p>
+                    <div class="flower-petal mx-auto mb-2 flex items-center justify-center bg-gray-200">2</div>
+                    <p class="text-2xl font-bold">+</p>
+                    <input type="text" class="flower-petal mx-auto my-2 text-center border-2" data-answer="4" data-sum="6" data-partner="2">
+                    <p class="text-2xl font-bold">=</p>
+                    <div class="flower-center mx-auto mt-2 flex items-center justify-center bg-red-300 text-3xl">6</div>
+                </div>
+                <div class="p-3 border rounded shadow bg-green-50">
+                    <p class="mb-2 text-sm">Petal 1</p>
+                    <div class="flower-petal mx-auto mb-2 flex items-center justify-center bg-gray-200">3</div>
+                    <p class="text-2xl font-bold">+</p>
+                    <input type="text" class="flower-petal mx-auto my-2 text-center border-2" data-answer="3" data-sum="6" data-partner="3">
+                    <p class="text-2xl font-bold">=</p>
+                    <div class="flower-center mx-auto mt-2 flex items-center justify-center bg-red-300 text-3xl">6</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="my-8">
+
+    <section class="mb-10 p-6 bg-white rounded-lg shadow-xl">
+        <h3 class="text-2xl font-bold text-indigo-700 mb-4">🗓️ Activity 3: Calendar Fill-in (April 2024)</h3>
+        <p class="mb-6 italic">Fill in the missing numbers on the calendar.</p>
+
+        <div class="max-w-xl mx-auto border-4 border-gray-700 p-2 bg-white">
+            <div class="text-center mb-4">
+                <h4 class="text-3xl font-serif font-bold">April 2024</h4>
+            </div>
+            <div class="grid grid-cols-7 text-center font-bold text-sm bg-gray-200 border-b-2 border-gray-700">
+                <div class="p-2">SUN</div>
+                <div class="p-2">MON</div>
+                <div class="p-2">TUE</div>
+                <div class="p-2">WED</div>
+                <div class="p-2">THU</div>
+                <div class="p-2">FRI</div>
+                <div class="p-2">SAT</div>
+            </div>
+            <div id="calendar-grid" class="grid grid-cols-7 gap-px text-center text-lg">
+                <div class="p-1 border border-gray-300 bg-gray-100">1</div>
+                <div class="p-1 border border-gray-300 bg-gray-100">2</div>
+                <div class="p-1 border border-gray-300 bg-gray-100">3</div>
+                <div class="p-1 border border-gray-300 bg-gray-100">4</div>
+                <div class="p-1 border border-gray-300 bg-gray-100">5</div>
+                <div class="p-1 border border-gray-300 bg-gray-100 calendar-box">
+                    <input type="text" class="calendar-input" data-answer="6">
+                </div>
+                <div class="p-1 border border-gray-300 bg-gray-100 calendar-box">
+                    <input type="text" class="calendar-input" data-answer="7">
+                </div>
+                <div class="p-1 border border-gray-300 bg-gray-100">8</div>
+                <div class="p-1 border border-gray-300 bg-gray-100">9</div>
+                <div class="p-1 border border-gray-300 bg-gray-100">10</div>
+                <div class="p-1 border border-gray-300 bg-gray-100 calendar-box">
+                    <input type="text" class="calendar-input" data-answer="11">
+                </div>
+                <div class="p-1 border border-gray-300 bg-gray-100 calendar-box">
+                    <input type="text" class="calendar-input" data-answer="12">
+                </div>
+                <div class="p-1 border border-gray-300 bg-gray-100 calendar-box">
+                    <input type="text" class="calendar-input" data-answer="13">
+                </div>
+                <div class="p-1 border border-gray-300 bg-gray-100 calendar-box">
+                    <input type="text" class="calendar-input" data-answer="14">
+                </div>
+                <div class="p-1 border border-gray-300 bg-gray-100">15</div>
+                <div class="p-1 border border-gray-300 bg-gray-100">16</div>
+                <div class="p-1 border border-gray-300 bg-gray-100 calendar-box">
+                    <input type="text" class="calendar-input" data-answer="17">
+                </div>
+                <div class="p-1 border border-gray-300 bg-gray-100 calendar-box">
+                    <input type="text" class="calendar-input" data-answer="18">
+                </div>
+                <div class="p-1 border border-gray-300 bg-gray-100">19</div>
+                <div class="p-1 border border-gray-300 bg-gray-100 calendar-box">
+                    <input type="text" class="calendar-input" data-answer="20">
+                </div>
+                <div class="p-1 border border-gray-300 bg-gray-100 calendar-box">
+                    <input type="text" class="calendar-input" data-answer="21">
+                </div>
+                 <div class="p-1 border border-gray-300 bg-gray-100 calendar-box">
+                    <input type="text" class="calendar-input" data-answer="22">
+                </div>
+                <div class="p-1 border border-gray-300 bg-gray-100">23</div>
+                <div class="p-1 border border-gray-300 bg-gray-100">24</div>
+                <div class="p-1 border border-gray-300 bg-gray-100">25</div>
+                <div class="p-1 border border-gray-300 bg-gray-100">26</div>
+                <div class="p-1 border border-gray-300 bg-gray-100 calendar-box">
+                    <input type="text" class="calendar-input" data-answer="27">
+                </div>
+                <div class="p-1 border border-gray-300 bg-gray-100 calendar-box">
+                    <input type="text" class="calendar-input" data-answer="28">
+                </div>
+                 <div class="p-1 border border-gray-300 bg-gray-100">29</div>
+                <div class="p-1 border border-gray-300 bg-gray-100">30</div>
+                <div class="p-1 border border-gray-300 bg-gray-100"></div>
+                <div class="p-1 border border-gray-300 bg-gray-100"></div>
+                <div class="p-1 border border-gray-300 bg-gray-100"></div>
+                <div class="p-1 border border-gray-300 bg-gray-100"></div>
+                <div class="p-1 border border-gray-300 bg-gray-100"></div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="my-8">
+
+    <section class="mb-10 p-6 bg-white rounded-lg shadow-xl">
+        <h3 class="text-2xl font-bold text-indigo-700 mb-4">➕ Activity 4: Complete the Problems</h3>
+        
+        <div class="flex space-x-6 justify-center mb-10">
+            <div class="flex flex-col items-center p-3 border rounded shadow-md">
+                <p class="text-xl">16</p>
+                <div class="border-t border-gray-400 w-full mb-1"></div>
+                <p class="text-xl">+ <input type="text" class="w-12 text-xl text-center border-b-2" data-answer="13" oninput="checkAddition(this, 16)"></p>
+                <div class="border-t border-gray-800 w-full mt-1"></div>
+                <p class="text-xl font-bold">29</p>
+            </div>
+            <div class="flex flex-col items-center p-3 border rounded shadow-md">
+                <p class="text-xl">18</p>
+                <div class="border-t border-gray-400 w-full mb-1"></div>
+                <p class="text-xl">+ <input type="text" class="w-12 text-xl text-center border-b-2" data-answer="11" oninput="checkAddition(this, 18)"></p>
+                <div class="border-t border-gray-800 w-full mt-1"></div>
+                <p class="text-xl font-bold">29</p>
+            </div>
+            <div class="flex flex-col items-center p-3 border rounded shadow-md">
+                <p class="text-xl">17</p>
+                <div class="border-t border-gray-400 w-full mb-1"></div>
+                <p class="text-xl">+ <input type="text" class="w-12 text-xl text-center border-b-2" data-answer="21" oninput="checkAddition(this, 17)"></p>
+                <div class="border-t border-gray-800 w-full mt-1"></div>
+                <p class="text-xl font-bold">38</p>
+            </div>
+        </div>
+
+        <h4 class="text-xl font-bold text-purple-700 mb-4 text-center">🦆 How many more ducks to make 5?</h4>
+        <div class="flex space-x-6 justify-center">
+            <div class="flex flex-col items-center p-4 border rounded shadow-lg bg-purple-100">
+                <p class="text-3xl mb-2">6 - 4 = 2</p>
+                <p class="text-xl">Start with: 4 🦆</p>
+                <p class="text-xl">Need: <input type="text" class="w-12 text-xl text-center border-b-2" data-answer="1" oninput="checkComplement(this, 4)"></p>
+            </div>
+            <div class="flex flex-col items-center p-4 border rounded shadow-lg bg-purple-100">
+                <p class="text-3xl mb-2">5 - 3 = 2</p>
+                <p class="text-xl">Start with: 3 🦆</p>
+                <p class="text-xl">Need: <input type="text" class="w-12 text-xl text-center border-b-2" data-answer="2" oninput="checkComplement(this, 3)"></p>
+            </div>
+            <div class="flex flex-col items-center p-4 border rounded shadow-lg bg-purple-100">
+                <p class="text-3xl mb-2">4 - 1 = 3</p>
+                <p class="text-xl">Start with: 1 🦆</p>
+                <p class="text-xl">Need: <input type="text" class="w-12 text-xl text-center border-b-2" data-answer="4" oninput="checkComplement(this, 1)"></p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // --- 1. Ella's Tags (30 to 39) ---
+        const tagsContainer = document.getElementById('tags-container');
+        for (let i = 30; i <= 39; i++) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'tag-input';
+            input.placeholder = '3_';
+            input.dataset.answer = i.toString();
+            input.addEventListener('input', checkTag);
+            tagsContainer.appendChild(input);
+        }
+
+        function checkTag(event) {
+            const input = event.target;
+            const value = input.value.trim();
+            const correct = input.dataset.answer;
+
+            if (value === correct) {
+                input.classList.add('correct');
+                input.classList.remove('incorrect');
+            } else if (value.length === correct.length && value !== correct) {
+                input.classList.add('incorrect');
+                input.classList.remove('correct');
+            } else {
+                input.classList.remove('correct', 'incorrect');
+            }
+        }
+
+        // --- 2. Flower Math (Addends to 6) ---
+        document.querySelectorAll('[data-sum="6"]').forEach(input => {
+            input.addEventListener('input', checkFlower);
+        });
+
+        function checkFlower(event) {
+            const input = event.target;
+            const value = parseInt(input.value.trim(), 10);
+            const correct = parseInt(input.dataset.answer, 10);
+
+            if (!isNaN(value)) {
+                if (value === correct) {
+                    input.classList.add('correct');
+                    input.classList.remove('incorrect');
+                } else {
+                    input.classList.add('incorrect');
+                    input.classList.remove('correct');
+                }
+            } else {
+                input.classList.remove('correct', 'incorrect');
+            }
+        }
+
+        // --- 3. Calendar ---
+        document.querySelectorAll('.calendar-input').forEach(input => {
+            input.addEventListener('input', checkCalendar);
+        });
+
+        function checkCalendar(event) {
+            const input = event.target;
+            const value = input.value.trim();
+            const correct = input.dataset.answer;
+
+            if (value === correct) {
+                input.classList.add('correct');
+                input.classList.remove('incorrect');
+                input.style.border = '2px solid #10b981';
+            } else if (value.length >= correct.length) {
+                input.classList.add('incorrect');
+                input.classList.remove('correct');
+                input.style.border = '2px solid #ef4444';
+            } else {
+                input.classList.remove('correct', 'incorrect');
+                input.style.border = '1px solid #ccc';
+            }
+        }
+
+        // --- 4. Vertical Addition (Finding the missing addend) ---
+        function checkAddition(input, firstAddend) {
+            const value = parseInt(input.value.trim(), 10);
+            const correct = parseInt(input.dataset.answer, 10);
+
+            if (!isNaN(value)) {
+                if (value === correct) {
+                    input.classList.add('correct');
+                    input.classList.remove('incorrect');
+                } else {
+                    input.classList.add('incorrect');
+                    input.classList.remove('correct');
+                }
+            } else {
+                input.classList.remove('correct', 'incorrect');
+            }
+        }
+
+        // --- 5. Ducks (Complements to 5) ---
+        function checkComplement(input, startValue) {
+            const value = parseInt(input.value.trim(), 10);
+            const correct = 5 - startValue;
+
+            if (!isNaN(value)) {
+                if (value === correct) {
+                    input.classList.add('correct');
+                    input.classList.remove('incorrect');
+                } else {
+                    input.classList.add('incorrect');
+                    input.classList.remove('correct');
+                }
+            } else {
+                input.classList.remove('correct', 'incorrect');
+            }
+        }
+    </script>
+</body>
+</html>
