@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Math Workbook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+        
+        body { font-family: 'Comic Neue', cursive; }
+        
+        /* Coin Styles */
+        .coin { cursor: grab; transition: transform 0.1s; user-select: none; }
+        .coin:active { cursor: grabbing; transform: scale(1.1); }
+        .penny { background: #b87333; color: white; border: 2px solid #8c5625; }
+        .nickel { background: #d1d5db; color: #374151; border: 2px solid #9ca3af; width: 60px; height: 60px; }
+        .dime { background: #e5e7eb; color: #374151; border: 2px solid #9ca3af; width: 45px; height: 45px; }
+        
+        /* Drag targets */
+        .drop-zone { transition: all 0.3s; }
+        .drop-zone.hovered { background-color: #ecfdf5; border-color: #10b981; }
+        
+        /* Number Tiles */
+        .num-tile { cursor: grab; }
+        .num-tile:active { cursor: grabbing; }
+
+        /* Animations */
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .pop-anim { animation: pop 0.3s ease-out; }
+    </style>
+</head>
+<body class="bg-purple-50 text-gray-800 p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto space-y-12">
+        
+        <header class="text-center space-y-2">
+            <h1 class="text-4xl font-bold text-purple-600">Math Practice Fun!</h1>
+            <p class="text-lg text-gray-600">Complete the activities below to earn stars.</p>
+        </header>
+
+        <section class="bg-white rounded-2xl shadow-lg p-6 border-4 border-purple-200">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-purple-100 p-2 rounded-full text-2xl">⏰</div>
+                <h2 class="text-2xl font-bold text-purple-700">Clock Practice</h2>
+            </div>
+            <p class="mb-4 text-gray-600">Look at the clock and write the time in the boxes (Hour : Minute).</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="clock-container">
+                </div>
+        </section>
+
+        <section class="bg-white rounded-2xl shadow-lg p-6 border-4 border-blue-200">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-blue-100 p-2 rounded-full text-2xl">☕</div>
+                <h2 class="text-2xl font-bold text-blue-700">Count the Mugs</h2>
+            </div>
+            <p class="mb-4 text-gray-600">Click every mug to count it. The total will appear when you finish!</p>
+
+            <div class="space-y-6">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4 p-4 bg-blue-50 rounded-xl">
+                    <div class="flex flex-wrap gap-2" id="mugs-1">
+                        </div>
+                    <div class="w-16 h-16 flex items-center justify-center bg-white border-2 border-blue-300 rounded-lg text-2xl font-bold hidden" id="total-1"></div>
+                </div>
+                 <div class="flex flex-col md:flex-row items-center justify-between gap-4 p-4 bg-blue-50 rounded-xl">
+                    <div class="flex flex-wrap gap-2" id="mugs-2"></div>
+                    <div class="w-16 h-16 flex items-center justify-center bg-white border-2 border-blue-300 rounded-lg text-2xl font-bold hidden" id="total-2"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl shadow-lg p-6 border-4 border-pink-200">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-pink-100 p-2 rounded-full text-2xl">➕</div>
+                <h2 class="text-2xl font-bold text-pink-700">Doubles Addition</h2>
+            </div>
+            <p class="mb-4 text-gray-600">Drag numbers from the bank to solve the doubles problems.</p>
+
+            <div class="bg-gray-100 p-4 rounded-xl mb-6 flex flex-wrap justify-center gap-3">
+                <span class="text-sm font-bold text-gray-500 w-full text-center mb-2">NUMBER BANK (Drag Us!)</span>
+                <div class="num-tile w-10 h-10 bg-pink-500 text-white rounded flex items-center justify-center font-bold text-xl shadow-md" draggable="true" data-val="2">2</div>
+                <div class="num-tile w-10 h-10 bg-pink-500 text-white rounded flex items-center justify-center font-bold text-xl shadow-md" draggable="true" data-val="3">3</div>
+                <div class="num-tile w-10 h-10 bg-pink-500 text-white rounded flex items-center justify-center font-bold text-xl shadow-md" draggable="true" data-val="4">4</div>
+                <div class="num-tile w-10 h-10 bg-pink-500 text-white rounded flex items-center justify-center font-bold text-xl shadow-md" draggable="true" data-val="5">5</div>
+                <div class="num-tile w-10 h-10 bg-pink-500 text-white rounded flex items-center justify-center font-bold text-xl shadow-md" draggable="true" data-val="6">6</div>
+                <div class="num-tile w-10 h-10 bg-pink-500 text-white rounded flex items-center justify-center font-bold text-xl shadow-md" draggable="true" data-val="8">8</div>
+                <div class="num-tile w-10 h-10 bg-pink-500 text-white rounded flex items-center justify-center font-bold text-xl shadow-md" draggable="true" data-val="10">10</div>
+                <div class="num-tile w-10 h-10 bg-pink-500 text-white rounded flex items-center justify-center font-bold text-xl shadow-md" draggable="true" data-val="12">12</div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-8">
+                <div class="flex items-center gap-2 text-2xl font-bold">
+                    <span>2 +</span>
+                    <div class="drop-slot w-12 h-12 bg-gray-50 border-2 border-dashed border-gray-400 rounded flex items-center justify-center" data-expected="2"></div>
+                    <span>=</span>
+                    <div class="drop-slot w-12 h-12 bg-gray-50 border-2 border-dashed border-gray-400 rounded flex items-center justify-center" data-expected="4"></div>
+                </div>
+                <div class="flex items-center gap-2 text-2xl font-bold">
+                    <span>5 +</span>
+                    <div class="drop-slot w-12 h-12 bg-gray-50 border-2 border-dashed border-gray-400 rounded flex items-center justify-center" data-expected="5"></div>
+                    <span>=</span>
+                    <div class="drop-slot w-12 h-12 bg-gray-50 border-2 border-dashed border-gray-400 rounded flex items-center justify-center" data-expected="10"></div>
+                </div>
+                <div class="flex items-center gap-2 text-2xl font-bold">
+                    <span>6 +</span>
+                    <div class="drop-slot w-12 h-12 bg-gray-50 border-2 border-dashed border-gray-400 rounded flex items-center justify-center" data-expected="6"></div>
+                    <span>=</span>
+                    <div class="drop-slot w-12 h-12 bg-gray-50 border-2 border-dashed border-gray-400 rounded flex items-center justify-center" data-expected="12"></div>
+                </div>
+                <div class="flex items-center gap-2 text-2xl font-bold">
+                    <span>3 +</span>
+                    <div class="drop-slot w-12 h-12 bg-gray-50 border-2 border-dashed border-gray-400 rounded flex items-center justify-center" data-expected="3"></div>
+                    <span>=</span>
+                    <div class="drop-slot w-12 h-12 bg-gray-50 border-2 border-dashed border-gray-400 rounded flex items-center justify-center" data-expected="6"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl shadow-lg p-6 border-4 border-yellow-200">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-yellow-100 p-2 rounded-full text-2xl">💰</div>
+                <h2 class="text-2xl font-bold text-yellow-700">Hot Chocolate Money</h2>
+            </div>
+            <p class="mb-4 text-gray-600">Drag coins onto the mats to pay for the Hot Chocolate.</p>
+
+            <div class="sticky top-2 z-50 bg-white/90 backdrop-blur p-4 rounded-xl shadow border border-gray-200 flex justify-around items-center mb-8">
+                <div class="text-center">
+                    <div class="coin penny rounded-full w-12 h-12 flex items-center justify-center text-xs font-bold mx-auto mb-1 shadow" draggable="true" data-value="1">1¢</div>
+                    <span class="text-xs text-gray-500">Penny</span>
+                </div>
+                <div class="text-center">
+                    <div class="coin nickel rounded-full flex items-center justify-center text-xs font-bold mx-auto mb-1 shadow" draggable="true" data-value="5">5¢</div>
+                    <span class="text-xs text-gray-500">Nickel</span>
+                </div>
+                <div class="text-center">
+                    <div class="coin dime rounded-full flex items-center justify-center text-xs font-bold mx-auto mb-1 shadow" draggable="true" data-value="10">10¢</div>
+                    <span class="text-xs text-gray-500">Dime</span>
+                </div>
+                <div class="text-sm text-gray-500 w-32 leading-tight ml-4">
+                    Drag these coins to the boxes below!
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="border-2 border-yellow-300 rounded-xl p-4 flex flex-col items-center bg-yellow-50">
+                    <div class="text-4xl mb-2">☕ 46¢</div>
+                    <div class="coin-drop-zone w-full h-32 bg-white rounded-lg border-2 border-dashed border-gray-300 flex flex-wrap content-start gap-2 p-2 overflow-hidden relative" data-target="46">
+                        <span class="absolute inset-0 flex items-center justify-center text-gray-300 pointer-events-none">Drop Coins Here</span>
+                    </div>
+                    <div class="mt-2 font-bold text-gray-600">Current Total: <span class="current-total text-yellow-600">0</span>¢</div>
+                    <div class="feedback mt-1 text-sm h-6 font-bold"></div>
+                </div>
+
+                <div class="border-2 border-yellow-300 rounded-xl p-4 flex flex-col items-center bg-yellow-50">
+                    <div class="text-4xl mb-2">☕ 22¢</div>
+                    <div class="coin-drop-zone w-full h-32 bg-white rounded-lg border-2 border-dashed border-gray-300 flex flex-wrap content-start gap-2 p-2 overflow-hidden relative" data-target="22">
+                        <span class="absolute inset-0 flex items-center justify-center text-gray-300 pointer-events-none">Drop Coins Here</span>
+                    </div>
+                    <div class="mt-2 font-bold text-gray-600">Current Total: <span class="current-total text-yellow-600">0</span>¢</div>
+                    <div class="feedback mt-1 text-sm h-6 font-bold"></div>
+                </div>
+            </div>
+
+            <div class="mt-4 text-right">
+                <button onclick="resetMoney()" class="text-sm text-red-500 underline">Reset Money</button>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        /* --- 1. CLOCK LOGIC --- */
+        const clocks = [
+            { h: 12, m: 30 }, { h: 2, m: 30 }, { h: 7, m: 30 }, { h: 9, m: 30 }
+        ];
+
+        function createClockSVG(h, m, id) {
+            // Calculate angles
+            const mAngle = m * 6;
+            const hAngle = (h % 12) * 30 + (m * 0.5);
+
+            return `
+            <div class="flex flex-col items-center">
+                <svg width="120" height="120" viewBox="0 0 100 100" class="mb-3">
+                    <circle cx="50" cy="50" r="45" stroke="#4B5563" stroke-width="3" fill="white" />
+                    <circle cx="50" cy="50" r="2" fill="black" />
+                    <line x1="50" y1="5" x2="50" y2="10" stroke="black" stroke-width="2" />
+                    <line x1="50" y1="95" x2="50" y2="90" stroke="black" stroke-width="2" />
+                    <line x1="95" y1="50" x2="90" y2="50" stroke="black" stroke-width="2" />
+                    <line x1="5" y1="50" x2="10" y2="50" stroke="black" stroke-width="2" />
+                    
+                    <line x1="50" y1="50" x2="50" y2="25" stroke="black" stroke-width="4" stroke-linecap="round" transform="rotate(${hAngle}, 50, 50)" />
+                    <line x1="50" y1="50" x2="50" y2="15" stroke="black" stroke-width="2" stroke-linecap="round" transform="rotate(${mAngle}, 50, 50)" />
+                </svg>
+                <div class="flex items-center gap-1">
+                    <input type="number" class="clock-input text-center border-2 border-gray-300 rounded w-12 h-10 font-bold text-lg" placeholder="00" data-type="h" data-id="${id}">
+                    <span class="font-bold text-xl">:</span>
+                    <input type="number" class="clock-input text-center border-2 border-gray-300 rounded w-12 h-10 font-bold text-lg" placeholder="00" data-type="m" data-id="${id}">
+                </div>
+                <div class="h-6 mt-1 text-sm font-bold text-green-600 feedback-clock" id="feedback-clock-${id}"></div>
+            </div>`;
+        }
+
+        const clockContainer = document.getElementById('clock-container');
+        clocks.forEach((c, i) => {
+            clockContainer.innerHTML += createClockSVG(c.h, c.m, i);
+        });
+
+        document.querySelectorAll('.clock-input').forEach(input => {
+            input.addEventListener('input', (e) => {
+                const id = e.target.dataset.id;
+                const type = e.target.dataset.type;
+                const inputs = document.querySelectorAll(`.clock-input[data-id="${id}"]`);
+                const hInput = inputs[0].value;
+                const mInput = inputs[1].value;
+                const feedback = document.getElementById(`feedback-clock-${id}`);
+
+                // Very loose validation
+                if(hInput == clocks[id].h && mInput == clocks[id].m) {
+                    inputs.forEach(i => i.classList.add('border-green-500', 'bg-green-50'));
+                    feedback.innerText = "Correct!";
+                } else {
+                    inputs.forEach(i => i.classList.remove('border-green-500', 'bg-green-50'));
+                    feedback.innerText = "";
+                }
+            });
+        });
+
+
+        /* --- 2. COUNTING MUGS LOGIC --- */
+        function setupMugs(containerId, totalId, count) {
+            const container = document.getElementById(containerId);
+            const totalBox = document.getElementById(totalId);
+            let currentCount = 0;
+
+            for(let i=0; i<count; i++) {
+                const mug = document.createElement('div');
+                mug.innerHTML = '☕';
+                mug.className = 'text-4xl cursor-pointer opacity-20 transition-all duration-300 hover:scale-110 select-none';
+                mug.onclick = function() {
+                    if(this.classList.contains('opacity-20')) {
+                        this.classList.remove('opacity-20');
+                        this.classList.add('pop-anim');
+                        currentCount++;
+                        if(currentCount === count) {
+                            totalBox.innerText = count;
+                            totalBox.classList.remove('hidden');
+                            totalBox.classList.add('pop-anim', 'text-blue-600');
+                        }
+                    }
+                };
+                container.appendChild(mug);
+            }
+        }
+        setupMugs('mugs-1', 'total-1', 5);
+        setupMugs('mugs-2', 'total-2', 7);
+
+
+        /* --- 3. DOUBLES & MONEY (DRAG AND DROP) --- */
+        
+        let draggedItem = null;
+        let draggedValue = null;
+        let draggedType = null; // 'number' or 'coin'
+
+        // --- Setup Source Items ---
+        document.querySelectorAll('.num-tile').forEach(tile => {
+            tile.addEventListener('dragstart', (e) => {
+                draggedItem = e.target;
+                draggedValue = e.target.dataset.val;
+                draggedType = 'number';
+                e.dataTransfer.effectAllowed = "copy"; // Allow copying logic for numbers
+            });
+        });
+
+        document.querySelectorAll('.coin').forEach(coin => {
+            coin.addEventListener('dragstart', (e) => {
+                draggedItem = e.target; // This is the source coin
+                draggedValue = e.target.dataset.value;
+                draggedType = 'coin';
+                e.dataTransfer.effectAllowed = "copy";
+            });
+        });
+
+        // --- Setup Drop Zones (Numbers) ---
+        document.querySelectorAll('.drop-slot').forEach(slot => {
+            slot.addEventListener('dragover', (e) => {
+                e.preventDefault(); // Allow drop
+                slot.classList.add('bg-green-50', 'border-green-300');
+            });
+            slot.addEventListener('dragleave', () => {
+                slot.classList.remove('bg-green-50', 'border-green-300');
+            });
+            slot.addEventListener('drop', (e) => {
+                e.preventDefault();
+                slot.classList.remove('bg-green-50', 'border-green-300');
+                
+                if(draggedType === 'number') {
+                    // Visual update
+                    slot.innerText = draggedValue;
+                    slot.classList.remove('border-dashed', 'text-gray-400');
+                    slot.classList.add('text-pink-600', 'bg-white', 'border-solid');
+
+                    // Logic check
+                    if(draggedValue === slot.dataset.expected) {
+                        slot.classList.add('border-green-500', 'bg-green-100');
+                    } else {
+                        slot.classList.add('border-red-500', 'bg-red-100');
+                        setTimeout(() => {
+                            slot.innerText = ""; // Clear if wrong
+                            slot.classList.remove('border-red-500', 'bg-red-100', 'border-solid', 'bg-white');
+                            slot.classList.add('border-dashed', 'bg-gray-50');
+                        }, 1000);
+                    }
+                }
+            });
+        });
+
+        // --- Setup Drop Zones (Money) ---
+        document.querySelectorAll('.coin-drop-zone').forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('hovered');
+            });
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('hovered');
+            });
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('hovered');
+
+                if(draggedType === 'coin') {
+                    // Clone the coin visual
+                    const newCoin = draggedItem.cloneNode(true);
+                    newCoin.classList.remove('mx-auto', 'mb-1'); // Clean up styling
+                    newCoin.classList.add('scale-75'); // Make slightly smaller in pile
+                    newCoin.draggable = false; // Once dropped, can't drag out in this simple version
+                    
+                    zone.appendChild(newCoin);
+
+                    // Update Logic
+                    updateZoneTotal(zone);
+                }
+            });
+        });
+
+        function updateZoneTotal(zone) {
+            const coins = zone.querySelectorAll('.coin');
+            let total = 0;
+            coins.forEach(c => total += parseInt(c.dataset.value));
+            
+            // Update Text
+            const wrapper = zone.parentElement;
+            wrapper.querySelector('.current-total').innerText = total;
+
+            // Check Target
+            const target = parseInt(zone.dataset.target);
+            const feedback = wrapper.querySelector('.feedback');
+            
+            if(total === target) {
+                feedback.innerText = "Perfect! ⭐";
+                feedback.classList.add('text-green-600');
+                zone.classList.add('border-green-500', 'bg-green-50');
+                zone.classList.remove('border-gray-300');
+            } else if (total > target) {
+                feedback.innerText = "Too much!";
+                feedback.classList.add('text-red-500');
+            } else {
+                feedback.innerText = "";
+                zone.classList.remove('border-green-500', 'bg-green-50');
+            }
+        }
+
+        function resetMoney() {
+            document.querySelectorAll('.coin-drop-zone').forEach(zone => {
+                // Remove all coins inside, keep the placeholder text
+                const placeholder = zone.querySelector('span');
+                zone.innerHTML = ''; 
+                if(placeholder) zone.appendChild(placeholder);
+                updateZoneTotal(zone);
+            });
+        }
+
+    </script>
+</body>
+</html>
