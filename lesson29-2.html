@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Math Lesson</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the virtual keyboard and celebration animation */
+        .input-correct {
+            border-color: #10B981 !important; /* Tailwind green-500 */
+            background-color: #D1FAE5 !important; /* Tailwind green-100 */
+        }
+        .input-incorrect {
+            border-color: #EF4444 !important; /* Tailwind red-500 */
+            background-color: #FEE2E2 !important; /* Tailwind red-100 */
+        }
+        .v-keyboard {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #f0f0f0;
+            padding: 10px;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none; /* Hidden by default */
+        }
+        .v-keyboard button {
+            @apply bg-blue-500 text-white p-4 m-1 rounded-lg text-2xl font-bold transition duration-150 hover:bg-blue-600;
+        }
+        .v-keyboard .delete {
+            @apply bg-red-500 hover:bg-red-600;
+        }
+        .v-keyboard .done {
+            @apply bg-green-500 hover:bg-green-600;
+        }
+        
+        /* Simple Confetti/Celebration Animation */
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 2000;
+            animation: confetti-fall 2s ease-in-out forwards;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-4 md:p-8 font-sans">
+
+    <div id="confetti-container"></div>
+
+    <div class="max-w-4xl mx-auto bg-white shadow-xl rounded-lg p-6">
+        <h1 class="text-3xl font-extrabold text-purple-700 mb-6 border-b-4 border-purple-200 pb-2">🧠 Interactive Math Review</h1>
+        
+        <div id="lesson-container">
+            </div>
+
+        <div class="mt-8 pt-4 border-t-2 border-gray-200 flex justify-end">
+            <button id="check-next-btn" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 transition duration-150">
+                Check Answers
+            </button>
+        </div>
+    </div>
+
+    <div id="virtual-keyboard" class="v-keyboard">
+        <div class="grid grid-cols-4 gap-2">
+            <button class="col-span-1" data-key="1">1</button>
+            <button class="col-span-1" data-key="2">2</button>
+            <button class="col-span-1" data-key="3">3</button>
+            <button class="col-span-1 delete" data-key="delete">⌫</button>
+            
+            <button class="col-span-1" data-key="4">4</button>
+            <button class="col-span-1" data-key="5">5</button>
+            <button class="col-span-1" data-key="6">6</button>
+            <button class="col-span-1 done" data-key="done">Done</button>
+            
+            <button class="col-span-1" data-key="7">7</button>
+            <button class="col-span-1" data-key="8">8</button>
+            <button class="col-span-1" data-key="9">9</button>
+            <button class="col-span-1" data-key="0">0</button>
+        </div>
+    </div>
+
+    <script>
+        const lessonContainer = document.getElementById('lesson-container');
+        const checkNextBtn = document.getElementById('check-next-btn');
+        const virtualKeyboard = document.getElementById('virtual-keyboard');
+        let currentScreen = 1;
+        let focusedInput = null;
+
+        // --- Data & Answers ---
+        const answers = {
+            // Screen 1: Calendar
+            calendar: {
+                d_7: 7, d_10: 10, d_13: 13, d_17: 17, d_18: 18, d_19: 19, d_20: 20,
+                d_22: 22, d_23: 23, d_25: 25, d_26: 26, d_27: 27, d_28: 28, d_31: 31 // Day 31 is the first day of May, which is needed to complete the grid
+            },
+            // Screen 2: Addition
+            addition: {
+                sum_1: 29, sum_2: 29, sum_3: 38, sum_4: 18, sum_5: 18, sum_6: 18
+            },
+            // Screen 3: Ducks (Needed to make 5)
+            ducks: {
+                d_1: 2, d_2: 3, d_3: 2, d_4: 3
+            }
+        };
+
+        // --- Screen Templates ---
+
+        function renderCalendarScreen() {
+            lessonContainer.innerHTML = `
+                <div id="screen-1" class="space-y-6">
+                    <h2 class="text-2xl font-bold text-indigo-700">📅 Screen 1: Calendar Review</h2>
+                    <p class="text-gray-600">Fill in the missing numbers on the calendar and write the circled dates (11 and 24) in the matching colored boxes (Not implemented in this version, just fill the calendar).</p>
+                    
+                    <div class="p-4 bg-purple-50 rounded-lg shadow-inner">
+                        <h3 class="text-xl font-semibold mb-2 text-purple-800">April 2024</h3>
+                        <div class="grid grid-cols-7 border border-purple-400">
+                            <div class="text-center font-bold bg-purple-200 border border-purple-400 p-2">Sunday</div>
+                            <div class="text-center font-bold bg-purple-200 border border-purple-400 p-2">Monday</div>
+                            <div class="text-center font-bold bg-purple-200 border border-purple-400 p-2">Tuesday</div>
+                            <div class="text-center font-bold bg-purple-200 border border-purple-400 p-2">Wednesday</div>
+                            <div class="text-center font-bold bg-purple-200 border border-purple-400 p-2">Thursday</div>
+                            <div class="text-center font-bold bg-purple-200 border border-purple-400 p-2">Friday</div>
+                            <div class="text-center font-bold bg-purple-200 border border-purple-400 p-2">Saturday</div>
+
+                            <div class="text-center p-2 border border-purple-400 h-12"></div>
+                            <div class="text-center p-2 border border-purple-400 h-12">1</div>
+                            <div class="text-center p-2 border border-purple-400 h-12">2</div>
+                            <div class="text-center p-2 border border-purple-400 h-12">3</div>
+                            <div class="text-center p-2 border border-purple-400 h-12">4</div>
+                            <div class="text-center p-2 border border-purple-400 h-12">5</div>
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_7" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_7" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+                            <div class="text-center p-2 border border-purple-400 h-12">8</div>
+                            <div class="text-center p-2 border border-purple-400 h-12">9</div>
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_10" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+                            <div class="text-center p-2 border border-purple-400 h-12 ring-2 ring-green-500 rounded-full w-8 h-8 mx-auto flex items-center justify-center">11</div>
+                            <div class="text-center p-2 border border-purple-400 h-12">12</div>
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_13" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+
+                            <div class="text-center p-2 border border-purple-400 h-12">14</div>
+                            <div class="text-center p-2 border border-purple-400 h-12">15</div>
+                            <div class="text-center p-2 border border-purple-400 h-12">16</div>
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_17" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_18" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_19" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_20" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+
+                            <div class="text-center p-2 border border-purple-400 h-12">21</div>
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_22" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_23" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+                            <div class="text-center p-2 border border-purple-400 h-12 ring-2 ring-green-500 rounded-full w-8 h-8 mx-auto flex items-center justify-center">24</div>
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_25" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_26" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_27" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+                            
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_28" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+                            <div class="text-center p-2 border border-purple-400 h-12">29</div>
+                            <div class="text-center p-2 border border-purple-400 h-12">30</div>
+                            <div class="text-center p-1 border border-purple-400 h-12"><input type="number" id="d_31" class="w-full text-center border-b-2 focus:outline-none" inputmode="none"></div>
+                            <div class="text-center p-1 border border-purple-400 h-12"></div>
+                            <div class="text-center p-1 border border-purple-400 h-12"></div>
+                            <div class="text-center p-1 border border-purple-400 h-12"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            checkNextBtn.textContent = 'Check Answers';
+            addInputListeners();
+        }
+
+        function renderAdditionScreen() {
+            lessonContainer.innerHTML = `
+                <div id="screen-2" class="space-y-6">
+                    <h2 class="text-2xl font-bold text-teal-700">➕ Screen 2: Complete Each Problem</h2>
+                    <p class="text-gray-600">Write the correct sum for each vertical addition problem.</p>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 p-4 bg-teal-50 rounded-lg shadow-inner">
+                        <div class="flex flex-col items-center">
+                            <span class="text-lg">16</span>
+                            <span class="text-lg">+13</span>
+                            <hr class="w-10 border-t-2 border-teal-500 my-1">
+                            <input type="number" id="sum_1" class="w-12 text-center text-lg border-b-2 focus:outline-none" inputmode="none">
+                        </div>
+
+                        <div class="flex flex-col items-center">
+                            <span class="text-lg">18</span>
+                            <span class="text-lg">+11</span>
+                            <hr class="w-10 border-t-2 border-teal-500 my-1">
+                            <input type="number" id="sum_2" class="w-12 text-center text-lg border-b-2 focus:outline-none" inputmode="none">
+                        </div>
+                        
+                        <div class="flex flex-col items-center">
+                            <span class="text-lg">17</span>
+                            <span class="text-lg">+21</span>
+                            <hr class="w-10 border-t-2 border-teal-500 my-1">
+                            <input type="number" id="sum_3" class="w-12 text-center text-lg border-b-2 focus:outline-none" inputmode="none">
+                        </div>
+
+                        <div class="flex flex-col items-center">
+                            <span class="text-lg">12</span>
+                            <span class="text-lg">+ 6</span>
+                            <hr class="w-10 border-t-2 border-teal-500 my-1">
+                            <input type="number" id="sum_4" class="w-12 text-center text-lg border-b-2 focus:outline-none" inputmode="none">
+                        </div>
+
+                        <div class="flex flex-col items-center">
+                            <span class="text-lg">13</span>
+                            <span class="text-lg">+ 5</span>
+                            <hr class="w-10 border-t-2 border-teal-500 my-1">
+                            <input type="number" id="sum_5" class="w-12 text-center text-lg border-b-2 focus:outline-none" inputmode="none">
+                        </div>
+
+                        <div class="flex flex-col items-center">
+                            <span class="text-lg">14</span>
+                            <span class="text-lg">+ 4</span>
+                            <hr class="w-10 border-t-2 border-teal-500 my-1">
+                            <input type="number" id="sum_6" class="w-12 text-center text-lg border-b-2 focus:outline-none" inputmode="none">
+                        </div>
+                    </div>
+                </div>
+            `;
+            checkNextBtn.textContent = 'Check Answers';
+            addInputListeners();
+        }
+
+        function renderDucksScreen() {
+            lessonContainer.innerHTML = `
+                <div id="screen-3" class="space-y-6">
+                    <h2 class="text-2xl font-bold text-pink-700">🦆 Screen 3: Make 5 Ducks</h2>
+                    <p class="text-gray-600">In each purple box, write how many **more ducks** are needed to make 5.</p>
+
+                    <div class="flex flex-wrap justify-center gap-6 p-4 bg-pink-50 rounded-lg shadow-inner">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-2xl">🦆🦆🦆</span>
+                            <span class="text-xl font-bold text-pink-700">+</span>
+                            <input type="number" id="d_1" class="w-12 h-12 text-center text-xl border-2 border-purple-400 focus:outline-none bg-purple-100 rounded-lg" inputmode="none">
+                            <span class="text-xl font-bold text-pink-700">= 5</span>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <span class="text-2xl">🦆🦆</span>
+                            <span class="text-xl font-bold text-pink-700">+</span>
+                            <input type="number" id="d_2" class="w-12 h-12 text-center text-xl border-2 border-purple-400 focus:outline-none bg-purple-100 rounded-lg" inputmode="none">
+                            <span class="text-xl font-bold text-pink-700">= 5</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap justify-center gap-6 p-4 bg-pink-50 rounded-lg shadow-inner">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-2xl">🦆🦆🦆</span>
+                            <span class="text-xl font-bold text-pink-700">+</span>
+                            <input type="number" id="d_3" class="w-12 h-12 text-center text-xl border-2 border-purple-400 focus:outline-none bg-purple-100 rounded-lg" inputmode="none">
+                            <span class="text-xl font-bold text-pink-700">= 5</span>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <span class="text-2xl">🦆🦆</span>
+                            <span class="text-xl font-bold text-pink-700">+</span>
+                            <input type="number" id="d_4" class="w-12 h-12 text-center text-xl border-2 border-purple-400 focus:outline-none bg-purple-100 rounded-lg" inputmode="none">
+                            <span class="text-xl font-bold text-pink-700">= 5</span>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-8 text-2xl font-bold text-green-600" id="completion-message" style="display:none;">🎉 Lesson Complete! Great Job!</div>
+                </div>
+            `;
+            checkNextBtn.textContent = 'Check Answers';
+            addInputListeners();
+        }
+
+        // --- Core Logic ---
+
+        function addInputListeners() {
+            // Get all input elements for the current screen
+            const inputs = lessonContainer.querySelectorAll('input[type="number"]');
+            
+            inputs.forEach(input => {
+                // Remove previous listeners to prevent duplicates
+                input.removeEventListener('focus', handleInputFocus);
+                input.removeEventListener('blur', handleInputBlur);
+                
+                // Add new listeners
+                input.addEventListener('focus', handleInputFocus);
+                // Note: We intentionally don't hide the keyboard on blur for a better UX, 
+                // but use 'done' button instead.
+            });
+        }
+
+        function handleInputFocus(event) {
+            focusedInput = event.target;
+            // Ensure the default mobile keyboard does not show up
+            focusedInput.setAttribute('inputmode', 'none'); 
+            focusedInput.blur(); // Ensures the system keyboard doesn't pop up
+            virtualKeyboard.style.display = 'block';
+        }
+
+        // function handleInputBlur(event) {
+        //     // If the blur event is not caused by the virtual keyboard, hide it.
+        //     // This is tricky to get right, so we rely on the 'Done' button.
+        // }
+
+        virtualKeyboard.addEventListener('click', (event) => {
+            const key = event.target.getAttribute('data-key');
+            if (!focusedInput || !key) return;
+
+            if (key === 'delete') {
+                focusedInput.value = focusedInput.value.slice(0, -1);
+            } else if (key === 'done') {
+                virtualKeyboard.style.display = 'none';
+                focusedInput.blur();
+                focusedInput = null;
+            } else {
+                // Ensure max length for visual design consistency (e.g., 2 digits)
+                if (focusedInput.value.length < 2) { 
+                    focusedInput.value += key;
+                }
+            }
+        });
+
+
+        function checkAnswers() {
+            let allCorrect = true;
+            let currentAnswers;
+            let currentScreenId;
+
+            if (currentScreen === 1) {
+                currentAnswers = answers.calendar;
+                currentScreenId = 'screen-1';
+            } else if (currentScreen === 2) {
+                currentAnswers = answers.addition;
+                currentScreenId = 'screen-2';
+            } else if (currentScreen === 3) {
+                currentAnswers = answers.ducks;
+                currentScreenId = 'screen-3';
+            }
+
+            const inputs = document.querySelectorAll(`#${currentScreenId} input`);
+            
+            inputs.forEach(input => {
+                const id = input.id;
+                const userAnswer = parseInt(input.value);
+                const correctAnswer = currentAnswers[id];
+
+                input.classList.remove('input-correct', 'input-incorrect');
+
+                if (userAnswer === correctAnswer) {
+                    input.classList.add('input-correct');
+                } else {
+                    input.classList.add('input-incorrect');
+                    allCorrect = false;
+                }
+            });
+
+            if (allCorrect) {
+                triggerCelebration();
+                checkNextBtn.textContent = 'Continue to Next Step';
+                checkNextBtn.removeEventListener('click', checkAnswers);
+                checkNextBtn.addEventListener('click', nextScreen);
+            } else {
+                // Re-enable the check button if not all correct
+                checkNextBtn.textContent = 'Try Again';
+            }
+        }
+
+        function nextScreen() {
+            currentScreen++;
+            if (currentScreen === 2) {
+                renderAdditionScreen();
+            } else if (currentScreen === 3) {
+                renderDucksScreen();
+            } else {
+                // End of lesson
+                document.getElementById('completion-message').style.display = 'block';
+                checkNextBtn.style.display = 'none'; // Hide button when lesson is complete
+            }
+            checkNextBtn.removeEventListener('click', nextScreen);
+            checkNextBtn.addEventListener('click', checkAnswers);
+        }
+
+        function triggerCelebration() {
+            const confettiContainer = document.getElementById('confetti-container');
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800', '#FF5722'];
+
+            for (let i = 0; i < 50; i++) {
+                const piece = document.createElement('div');
+                piece.classList.add('confetti');
+                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.left = `${Math.random() * 100}vw`;
+                piece.style.animationDelay = `${Math.random() * 0.5}s`;
+                piece.style.opacity = 1;
+                confettiContainer.appendChild(piece);
+            }
+
+            // Clean up confetti after animation
+            setTimeout(() => {
+                confettiContainer.innerHTML = '';
+            }, 2000);
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCalendarScreen(); // Start with the first screen
+            checkNextBtn.addEventListener('click', checkAnswers);
+        });
+
+    </script>
+</body>
+</html>
