@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grace & Truth Ministries | Spreading the Word</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="family">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .serif {
+            font-family: 'Playfair Display', serif;
+        }
+        .hero-gradient {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&q=80&w=1920');
+            background-size: cover;
+            background-position: center;
+        }
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .nav-link {
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #d4af37; /* Gold tone */
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="cross" class="text-blue-700 w-8 h-8"></i>
+                    <span class="text-xl font-bold tracking-tight serif italic">Grace & Truth</span>
+                </div>
+                
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex space-x-8 items-center font-medium">
+                    <a href="#home" class="nav-link">Home</a>
+                    <a href="#about" class="nav-link">About</a>
+                    <a href="#ministries" class="nav-link">Ministries</a>
+                    <a href="#events" class="nav-link">Events</a>
+                    <a href="#contact" class="nav-link">Contact</a>
+                    <a href="#give" class="bg-blue-700 text-white px-6 py-2 rounded-full hover:bg-blue-800 transition shadow-lg">Give</a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="p-2">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-100 p-4 space-y-4">
+            <a href="#home" class="block nav-link">Home</a>
+            <a href="#about" class="block nav-link">About</a>
+            <a href="#ministries" class="block nav-link">Ministries</a>
+            <a href="#events" class="block nav-link">Events</a>
+            <a href="#contact" class="block nav-link">Contact</a>
+            <a href="#give" class="block w-full text-center bg-blue-700 text-white py-3 rounded-lg">Give</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-gradient h-screen flex items-center justify-center text-center text-white pt-20">
+        <div class="max-w-4xl px-4 fade-in">
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 serif leading-tight">Walking in Faith, Living in Love.</h1>
+            <p class="text-xl md:text-2xl mb-10 text-slate-100 font-light max-w-2xl mx-auto">
+                Join our community as we grow together in Christ, serving our neighbors and sharing the Good News with the world.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#about" class="bg-white text-slate-900 px-8 py-4 rounded-full font-bold hover:bg-slate-100 transition shadow-xl">Our Vision</a>
+                <a href="#events" class="border-2 border-white px-8 py-4 rounded-full font-bold hover:bg-white/10 transition">Latest Events</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission & Values -->
+    <section id="about" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold serif mb-4">Our Heart & Mission</h2>
+                <div class="w-20 h-1 bg-blue-700 mx-auto mb-6 rounded-full"></div>
+                <p class="text-slate-600 max-w-2xl mx-auto text-lg">
+                    We are a Bible-believing ministry dedicated to the restoration of hope and the cultivation of disciples.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-12">
+                <div class="text-center p-8 rounded-2xl bg-slate-50 hover:shadow-lg transition">
+                    <div class="inline-flex p-4 rounded-full bg-blue-100 text-blue-700 mb-6">
+                        <i data-lucide="book-open" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Sound Doctrine</h3>
+                    <p class="text-slate-600">Committed to the teaching of God's Word with clarity, integrity, and practical application for daily living.</p>
+                </div>
+
+                <div class="text-center p-8 rounded-2xl bg-slate-50 hover:shadow-lg transition">
+                    <div class="inline-flex p-4 rounded-full bg-blue-100 text-blue-700 mb-6">
+                        <i data-lucide="users" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Community</h3>
+                    <p class="text-slate-600">Building authentic relationships where every person is known, loved, and encouraged in their spiritual walk.</p>
+                </div>
+
+                <div class="text-center p-8 rounded-2xl bg-slate-50 hover:shadow-lg transition">
+                    <div class="inline-flex p-4 rounded-full bg-blue-100 text-blue-700 mb-6">
+                        <i data-lucide="heart-handshake" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Outreach</h3>
+                    <p class="text-slate-600">Being the hands and feet of Jesus by serving the vulnerable and meeting the needs of our local community.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ministries Grid -->
+    <section id="ministries" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+                <div>
+                    <h2 class="text-4xl font-bold serif">Ministries</h2>
+                    <p class="text-slate-600 mt-2">Find your place to serve and grow.</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Youth -->
+                <div class="group overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition">
+                    <div class="h-56 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&q=80&w=800')"></div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Youth Ministry</h3>
+                        <p class="text-slate-600 mb-4 text-sm leading-relaxed">Empowering the next generation to lead with faith, courage, and wisdom in a changing world.</p>
+                        <button class="text-blue-700 font-bold flex items-center group-hover:gap-2 transition-all">Learn More <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i></button>
+                    </div>
+                </div>
+
+                <!-- Bible Study -->
+                <div class="group overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition">
+                    <div class="h-56 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&q=80&w=800')"></div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Life Groups</h3>
+                        <p class="text-slate-600 mb-4 text-sm leading-relaxed">Mid-week gatherings focused on deep Biblical study, prayer, and mutual support in small groups.</p>
+                        <button class="text-blue-700 font-bold flex items-center group-hover:gap-2 transition-all">Join a Group <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i></button>
+                    </div>
+                </div>
+
+                <!-- Outreach -->
+                <div class="group overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition">
+                    <div class="h-56 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=800')"></div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Global Missions</h3>
+                        <p class="text-slate-600 mb-4 text-sm leading-relaxed">Partnering with international organizations to spread the gospel and provide humanitarian aid.</p>
+                        <button class="text-blue-700 font-bold flex items-center group-hover:gap-2 transition-all">Support Missions <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section id="events" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold serif mb-12">Upcoming Events</h2>
+            <div class="space-y-6">
+                <!-- Event 1 -->
+                <div class="flex flex-col md:flex-row bg-slate-50 rounded-2xl overflow-hidden hover:bg-slate-100 transition">
+                    <div class="bg-blue-700 text-white p-8 flex flex-col items-center justify-center md:w-32">
+                        <span class="text-3xl font-bold">24</span>
+                        <span class="text-sm uppercase tracking-widest">Oct</span>
+                    </div>
+                    <div class="p-8 flex-1 flex flex-col md:flex-row md:items-center justify-between">
+                        <div>
+                            <h4 class="text-xl font-bold mb-1">Annual Prayer Retreat</h4>
+                            <p class="text-slate-500 flex items-center"><i data-lucide="map-pin" class="w-4 h-4 mr-2"></i> Cedar Valley Campsite</p>
+                        </div>
+                        <div class="mt-4 md:mt-0">
+                            <button class="bg-slate-900 text-white px-6 py-2 rounded-lg hover:bg-slate-800 transition">Register</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event 2 -->
+                <div class="flex flex-col md:flex-row bg-slate-50 rounded-2xl overflow-hidden hover:bg-slate-100 transition">
+                    <div class="bg-blue-700 text-white p-8 flex flex-col items-center justify-center md:w-32">
+                        <span class="text-3xl font-bold">02</span>
+                        <span class="text-sm uppercase tracking-widest">Nov</span>
+                    </div>
+                    <div class="p-8 flex-1 flex flex-col md:flex-row md:items-center justify-between">
+                        <div>
+                            <h4 class="text-xl font-bold mb-1">Night of Worship</h4>
+                            <p class="text-slate-500 flex items-center"><i data-lucide="map-pin" class="w-4 h-4 mr-2"></i> Main Auditorium - 7:00 PM</p>
+                        </div>
+                        <div class="mt-4 md:mt-0">
+                            <button class="bg-slate-900 text-white px-6 py-2 rounded-lg hover:bg-slate-800 transition">Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Donation Section -->
+    <section id="give" class="py-24 bg-blue-900 text-white">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <i data-lucide="gift" class="w-12 h-12 mx-auto mb-6 text-blue-300"></i>
+            <h2 class="text-4xl font-bold serif mb-6">Support Our Ministry</h2>
+            <p class="text-blue-100 text-lg mb-10 leading-relaxed">
+                Your generosity enables us to continue our work in the community and reach more people with the message of God's love. Thank you for partnering with us in this mission.
+            </p>
+            <div class="bg-white text-slate-900 p-8 rounded-3xl shadow-2xl max-w-lg mx-auto">
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                    <button class="border border-slate-200 py-3 rounded-lg hover:bg-blue-50 hover:border-blue-700 transition font-bold">$25</button>
+                    <button class="border border-slate-200 py-3 rounded-lg hover:bg-blue-50 hover:border-blue-700 transition font-bold">$50</button>
+                    <button class="bg-blue-700 text-white py-3 rounded-lg font-bold">$100</button>
+                    <button class="border border-slate-200 py-3 rounded-lg hover:bg-blue-50 hover:border-blue-700 transition font-bold">Other</button>
+                </div>
+                <button onclick="handleDonation()" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition">Give Now</button>
+                <p class="text-xs text-slate-400 mt-4 italic">Secure, tax-deductible donation.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-16">
+                <div>
+                    <h2 class="text-4xl font-bold serif mb-6">Get In Touch</h2>
+                    <p class="text-slate-600 mb-8">Have a prayer request? Want to learn more about our ministries? We'd love to hear from you.</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="p-3 bg-white rounded-lg shadow-sm mr-4">
+                                <i data-lucide="mail" class="text-blue-700"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold">Email Us</h5>
+                                <p class="text-slate-600">hello@gracetruthministry.org</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="p-3 bg-white rounded-lg shadow-sm mr-4">
+                                <i data-lucide="phone" class="text-blue-700"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold">Call Us</h5>
+                                <p class="text-slate-600">(555) 123-4567</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="p-3 bg-white rounded-lg shadow-sm mr-4">
+                                <i data-lucide="map-pin" class="text-blue-700"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold">Visit Us</h5>
+                                <p class="text-slate-600">123 Faith Lane, Grace City, GC 98000</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                    <form onsubmit="handleSubmit(event)" class="space-y-4">
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <input type="text" placeholder="Full Name" required class="w-full p-4 rounded-xl bg-slate-50 border border-transparent focus:border-blue-700 focus:bg-white transition outline-none">
+                            <input type="email" placeholder="Email Address" required class="w-full p-4 rounded-xl bg-slate-50 border border-transparent focus:border-blue-700 focus:bg-white transition outline-none">
+                        </div>
+                        <input type="text" placeholder="Subject" class="w-full p-4 rounded-xl bg-slate-50 border border-transparent focus:border-blue-700 focus:bg-white transition outline-none">
+                        <textarea rows="4" placeholder="Your Message" class="w-full p-4 rounded-xl bg-slate-50 border border-transparent focus:border-blue-700 focus:bg-white transition outline-none"></textarea>
+                        <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center md:text-left">
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="cross" class="text-blue-700 w-6 h-6"></i>
+                    <span class="text-lg font-bold serif italic">Grace & Truth</span>
+                </div>
+                
+                <div class="flex space-x-6 text-slate-500">
+                    <a href="#" class="hover:text-blue-700"><i data-lucide="facebook" class="w-5 h-5"></i></a>
+                    <a href="#" class="hover:text-blue-700"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                    <a href="#" class="hover:text-blue-700"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                    <a href="#" class="hover:text-blue-700"><i data-lucide="youtube" class="w-5 h-5"></i></a>
+                </div>
+
+                <p class="text-slate-400 text-sm">
+                    &copy; 2024 Grace & Truth Ministries. All Rights Reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notification system (replacing alerts) -->
+    <div id="notification" class="fixed bottom-8 right-8 bg-slate-900 text-white px-6 py-4 rounded-xl shadow-2xl transition-all translate-y-24 opacity-0 pointer-events-none z-[100]">
+        <span id="notification-message"></span>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Mobile Menu Toggle
+        const menuBtn = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu on link click
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // Smooth Notification
+        function showNotification(message) {
+            const el = document.getElementById('notification');
+            const msg = document.getElementById('notification-message');
+            msg.textContent = message;
+            
+            el.classList.remove('translate-y-24', 'opacity-0');
+            el.classList.add('translate-y-0', 'opacity-100');
+            
+            setTimeout(() => {
+                el.classList.add('translate-y-24', 'opacity-0');
+                el.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+
+        function handleSubmit(e) {
+            e.preventDefault();
+            showNotification("Thank you! Your message has been sent successfully.");
+            e.target.reset();
+        }
+
+        function handleDonation() {
+            showNotification("Redirecting to secure giving portal...");
+        }
+
+        // Simple header background change on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 100) {
+                nav.classList.add('bg-white/95', 'shadow-md');
+                nav.classList.remove('bg-white/90');
+            } else {
+                nav.classList.remove('bg-white/95', 'shadow-md');
+                nav.classList.add('bg-white/90');
+            }
+        });
+    </script>
+</body>
+</html>
