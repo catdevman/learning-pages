@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Boolean Logic: True or False!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0f4f8;
+            background-image: radial-gradient(#cbd5e1 2px, transparent 2px);
+            background-size: 30px 30px;
+        }
+
+        /* Pokédex Header Style */
+        .pokedex-header {
+            background-color: #EF5350;
+            border-bottom: 8px solid #B71C1C;
+        }
+
+        .lens {
+            background: #29B6F6;
+            border: 4px solid #ffffff;
+            box-shadow: inset -4px -4px 0px rgba(0,0,0,0.2);
+        }
+
+        /* Drag and Drop styling */
+        .draggable-card {
+            cursor: grab;
+            transition: transform 0.1s;
+        }
+        
+        .draggable-card:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+
+        /* Shake animation for wrong answers */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px) rotate(-3deg); }
+            50% { transform: translateX(8px) rotate(3deg); }
+            75% { transform: translateX(-8px) rotate(-3deg); }
+        }
+        .shake-animation {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Floating smiley face animation */
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+            100% { transform: translateY(-40px) scale(1); opacity: 0; }
+        }
+        .float-smiley {
+            animation: floatUp 1.5s ease-out forwards;
+            position: absolute;
+            pointer-events: none;
+            font-size: 4rem;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center pb-10">
+
+    <!-- Header Section -->
+    <header class="pokedex-header w-full p-6 shadow-lg rounded-b-3xl flex items-center gap-6 justify-center">
+        <div class="lens w-16 h-16 rounded-full"></div>
+        <div class="flex gap-2">
+            <div class="w-4 h-4 rounded-full bg-red-400 border-2 border-white"></div>
+            <div class="w-4 h-4 rounded-full bg-yellow-400 border-2 border-white"></div>
+            <div class="w-4 h-4 rounded-full bg-green-400 border-2 border-white"></div>
+        </div>
+        <h1 class="text-4xl font-black text-white ml-4 tracking-wide" style="text-shadow: 2px 2px 0px #B71C1C;">
+            Pokémon Logic: TRUE or FALSE!
+        </h1>
+    </header>
+
+    <!-- Instructions -->
+    <div class="max-w-4xl w-full mt-8 px-4 text-center">
+        <h2 class="text-2xl font-extrabold text-slate-700 bg-white p-4 rounded-2xl shadow-sm border-4 border-slate-200">
+            Read the clues carefully! Watch out for words like <span class="text-blue-600">AND</span> and <span class="text-red-500">OR</span>. Drag the Pokémon cards into the correct box!
+        </h2>
+    </div>
+
+    <!-- Feedback Message Area -->
+    <div class="h-16 mt-4 flex items-center justify-center">
+        <p id="feedback-msg" class="text-3xl font-black opacity-0 transition-opacity duration-300"></p>
+    </div>
+
+    <!-- Main Game Area -->
+    <div class="max-w-6xl w-full flex flex-col lg:flex-row gap-8 px-6 mt-4">
+        
+        <!-- Draggable Items Container (The "Deck") -->
+        <div class="w-full lg:w-1/3 bg-white p-6 rounded-3xl shadow-xl border-8 border-yellow-400 min-h-[400px]">
+            <h3 class="text-xl font-bold text-yellow-600 text-center mb-4 uppercase tracking-widest">Pokémon Cards</h3>
+            
+            <div id="card-deck" class="flex flex-col gap-4">
+                
+                <!-- Card 1 (TRUE: Simple) -->
+                <div class="draggable-card bg-slate-50 border-4 border-slate-300 p-4 rounded-2xl shadow-sm flex items-center gap-4" 
+                     draggable="true" data-answer="true">
+                    <span class="text-4xl">⚡</span>
+                    <p class="font-bold text-lg text-slate-700">Pikachu is Yellow.</p>
+                </div>
+
+                <!-- Card 2 (FALSE: AND condition) -->
+                <div class="draggable-card bg-slate-50 border-4 border-slate-300 p-4 rounded-2xl shadow-sm flex items-center gap-4" 
+                     draggable="true" data-answer="false">
+                    <span class="text-4xl">🍃</span>
+                    <p class="font-bold text-lg text-slate-700">Bulbasaur is Green <span class="text-red-500">AND</span> is a Fire type.</p>
+                </div>
+
+                <!-- Card 3 (TRUE: AND condition) -->
+                <div class="draggable-card bg-slate-50 border-4 border-slate-300 p-4 rounded-2xl shadow-sm flex items-center gap-4" 
+                     draggable="true" data-answer="true">
+                    <span class="text-4xl">💧</span>
+                    <p class="font-bold text-lg text-slate-700">Squirtle is Blue <span class="text-blue-600">AND</span> has a shell.</p>
+                </div>
+
+                <!-- Card 4 (FALSE: OR condition) -->
+                <div class="draggable-card bg-slate-50 border-4 border-slate-300 p-4 rounded-2xl shadow-sm flex items-center gap-4" 
+                     draggable="true" data-answer="false">
+                    <span class="text-4xl">🔥</span>
+                    <p class="font-bold text-lg text-slate-700">Charmander is Blue <span class="text-red-500">OR</span> Green.</p>
+                </div>
+
+                <!-- Card 5 (TRUE: OR condition) -->
+                <div class="draggable-card bg-slate-50 border-4 border-slate-300 p-4 rounded-2xl shadow-sm flex items-center gap-4" 
+                     draggable="true" data-answer="true">
+                    <span class="text-4xl">🔥</span>
+                    <p class="font-bold text-lg text-slate-700">Charmander is Orange <span class="text-blue-600">OR</span> Purple.</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Drop Zones Container -->
+        <div class="w-full lg:w-2/3 flex flex-col sm:flex-row gap-6 relative">
+            
+            <!-- TRUE Zone -->
+            <div class="drop-zone w-full sm:w-1/2 bg-green-100 border-dashed border-8 border-green-400 rounded-3xl p-6 flex flex-col items-center transition-colors duration-200"
+                 data-zone="true">
+                <div class="bg-green-500 text-white w-20 h-20 rounded-full flex items-center justify-center text-5xl font-black mb-4 shadow-md">✓</div>
+                <h3 class="text-3xl font-black text-green-700 mb-6">TRUE</h3>
+                <div class="drop-target w-full flex flex-col gap-3 min-h-[300px]"></div>
+            </div>
+
+            <!-- FALSE Zone -->
+            <div class="drop-zone w-full sm:w-1/2 bg-red-100 border-dashed border-8 border-red-400 rounded-3xl p-6 flex flex-col items-center transition-colors duration-200"
+                 data-zone="false">
+                <div class="bg-red-500 text-white w-20 h-20 rounded-full flex items-center justify-center text-5xl font-black mb-4 shadow-md">X</div>
+                <h3 class="text-3xl font-black text-red-700 mb-6">FALSE</h3>
+                <div class="drop-target w-full flex flex-col gap-3 min-h-[300px]"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Audio elements for extra fun (optional, using data URIs for self-containment would be too long, so visual feedback is prioritized as requested) -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const draggables = document.querySelectorAll('.draggable-card');
+            const dropZones = document.querySelectorAll('.drop-zone');
+            const feedbackMsg = document.getElementById('feedback-msg');
+
+            let draggedItem = null;
+
+            // Setup Drag Events for Cards
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', function(e) {
+                    draggedItem = this;
+                    setTimeout(() => this.classList.add('opacity-50'), 0);
+                });
+
+                draggable.addEventListener('dragend', function() {
+                    draggedItem = null;
+                    this.classList.remove('opacity-50');
+                });
+            });
+
+            // Setup Drop Zone Events
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault(); // Necessary to allow dropping
+                    this.classList.add('bg-opacity-70', 'scale-[1.02]');
+                });
+
+                zone.addEventListener('dragleave', function() {
+                    this.classList.remove('bg-opacity-70', 'scale-[1.02]');
+                });
+
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('bg-opacity-70', 'scale-[1.02]');
+                    
+                    if (!draggedItem) return;
+
+                    const expectedAnswer = draggedItem.getAttribute('data-answer');
+                    const zoneType = this.getAttribute('data-zone');
+                    const targetContainer = this.querySelector('.drop-target');
+
+                    if (expectedAnswer === zoneType) {
+                        // Correct Answer Logic
+                        targetContainer.appendChild(draggedItem);
+                        
+                        // Change styling to look "locked in"
+                        draggedItem.setAttribute('draggable', 'false');
+                        draggedItem.classList.remove('cursor-grab', 'active:cursor-grabbing');
+                        draggedItem.classList.add('cursor-default', 'border-green-400', 'bg-white');
+                        
+                        showFeedback('Great Job! Correct!', 'text-green-600');
+                        spawnSmiley(e.clientX, e.clientY);
+
+                        // Check for win condition
+                        checkWin();
+
+                    } else {
+                        // Wrong Answer Logic
+                        draggedItem.classList.add('shake-animation');
+                        draggedItem.classList.replace('border-slate-300', 'border-red-400');
+                        
+                        showFeedback('Oops! Try again!', 'text-red-500');
+
+                        setTimeout(() => {
+                            draggedItem.classList.remove('shake-animation');
+                            draggedItem.classList.replace('border-red-400', 'border-slate-300');
+                        }, 500);
+                    }
+                });
+            });
+
+            // Feedback Message Manager
+            function showFeedback(text, colorClass) {
+                feedbackMsg.textContent = text;
+                feedbackMsg.className = `text-3xl font-black transition-opacity duration-300 ${colorClass}`;
+                feedbackMsg.classList.remove('opacity-0');
+                
+                // Hide after 2 seconds
+                setTimeout(() => {
+                    feedbackMsg.classList.add('opacity-0');
+                }, 2000);
+            }
+
+            // Spawn floating smiley face at mouse coordinates
+            function spawnSmiley(x, y) {
+                const smiley = document.createElement('div');
+                smiley.textContent = '😊';
+                smiley.className = 'float-smiley';
+                
+                // Position exactly where dropped
+                smiley.style.left = `${x - 20}px`; 
+                smiley.style.top = `${y - 20}px`;
+                
+                document.body.appendChild(smiley);
+
+                // Cleanup DOM after animation finishes
+                setTimeout(() => {
+                    smiley.remove();
+                }, 1500);
+            }
+
+            function checkWin() {
+                const remainingCards = document.querySelector('#card-deck').children.length;
+                if (remainingCards === 0) {
+                    setTimeout(() => {
+                        showFeedback('🎉 YOU CAUGHT THEM ALL! PERFECT LOGIC! 🎉', 'text-yellow-500 text-5xl');
+                    }, 500);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
