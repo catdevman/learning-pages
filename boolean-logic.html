@@ -98,44 +98,8 @@
         <div class="w-full lg:w-1/3 bg-white p-6 rounded-3xl shadow-xl border-8 border-yellow-400 min-h-[400px]">
             <h3 class="text-xl font-bold text-yellow-600 text-center mb-4 uppercase tracking-widest">Pokémon Cards</h3>
             
-            <div id="card-deck" class="flex flex-col gap-4">
-                
-                <!-- Card 1 (TRUE: Simple) -->
-                <div class="draggable-card bg-slate-50 border-4 border-slate-300 p-4 rounded-2xl shadow-sm flex items-center gap-4" 
-                     draggable="true" data-answer="true">
-                    <span class="text-4xl">⚡</span>
-                    <p class="font-bold text-lg text-slate-700">Pikachu is Yellow.</p>
-                </div>
-
-                <!-- Card 2 (FALSE: AND condition) -->
-                <div class="draggable-card bg-slate-50 border-4 border-slate-300 p-4 rounded-2xl shadow-sm flex items-center gap-4" 
-                     draggable="true" data-answer="false">
-                    <span class="text-4xl">🍃</span>
-                    <p class="font-bold text-lg text-slate-700">Bulbasaur is Green <span class="text-red-500">AND</span> is a Fire type.</p>
-                </div>
-
-                <!-- Card 3 (TRUE: AND condition) -->
-                <div class="draggable-card bg-slate-50 border-4 border-slate-300 p-4 rounded-2xl shadow-sm flex items-center gap-4" 
-                     draggable="true" data-answer="true">
-                    <span class="text-4xl">💧</span>
-                    <p class="font-bold text-lg text-slate-700">Squirtle is Blue <span class="text-blue-600">AND</span> has a shell.</p>
-                </div>
-
-                <!-- Card 4 (FALSE: OR condition) -->
-                <div class="draggable-card bg-slate-50 border-4 border-slate-300 p-4 rounded-2xl shadow-sm flex items-center gap-4" 
-                     draggable="true" data-answer="false">
-                    <span class="text-4xl">🔥</span>
-                    <p class="font-bold text-lg text-slate-700">Charmander is Blue <span class="text-red-500">OR</span> Green.</p>
-                </div>
-
-                <!-- Card 5 (TRUE: OR condition) -->
-                <div class="draggable-card bg-slate-50 border-4 border-slate-300 p-4 rounded-2xl shadow-sm flex items-center gap-4" 
-                     draggable="true" data-answer="true">
-                    <span class="text-4xl">🔥</span>
-                    <p class="font-bold text-lg text-slate-700">Charmander is Orange <span class="text-blue-600">OR</span> Purple.</p>
-                </div>
-
-            </div>
+            <!-- This deck is now empty! JS will populate it based on the JSON data -->
+            <div id="card-deck" class="flex flex-col gap-4"></div>
         </div>
 
         <!-- Drop Zones Container -->
@@ -160,33 +124,82 @@
         </div>
     </div>
 
-    <!-- Audio elements for extra fun (optional, using data URIs for self-containment would be too long, so visual feedback is prioritized as requested) -->
-
     <script>
+        // 1. Data Structure: Array of question objects
+        // To add a new question, just add an object to this array!
+        const lessonData = [
+            { 
+                id: "q1", 
+                icon: "⚡", 
+                text: "Pikachu is Yellow.", 
+                answer: "true" 
+            },
+            { 
+                id: "q2", 
+                icon: "🍃", 
+                text: "Bulbasaur is Green <span class='text-red-500'>AND</span> is a Fire type.", 
+                answer: "false" 
+            },
+            { 
+                id: "q3", 
+                icon: "💧", 
+                text: "Squirtle is Blue <span class='text-blue-600'>AND</span> has a shell.", 
+                answer: "true" 
+            },
+            { 
+                id: "q4", 
+                icon: "🔥", 
+                text: "Charmander is Blue <span class='text-red-500'>OR</span> Green.", 
+                answer: "false" 
+            },
+            { 
+                id: "q5", 
+                icon: "🔥", 
+                text: "Charmander is Orange <span class='text-blue-600'>OR</span> Purple.", 
+                answer: "true" 
+            }
+        ];
+
         document.addEventListener('DOMContentLoaded', () => {
-            const draggables = document.querySelectorAll('.draggable-card');
+            const deckContainer = document.getElementById('card-deck');
             const dropZones = document.querySelectorAll('.drop-zone');
             const feedbackMsg = document.getElementById('feedback-msg');
 
             let draggedItem = null;
 
-            // Setup Drag Events for Cards
-            draggables.forEach(draggable => {
-                draggable.addEventListener('dragstart', function(e) {
-                    draggedItem = this;
-                    setTimeout(() => this.classList.add('opacity-50'), 0);
-                });
+            // 2. Dynamic Rendering: Build cards from JSON
+            function renderCards() {
+                lessonData.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'draggable-card bg-slate-50 border-4 border-slate-300 p-4 rounded-2xl shadow-sm flex items-center gap-4';
+                    card.setAttribute('draggable', 'true');
+                    card.setAttribute('data-answer', item.answer);
+                    card.setAttribute('id', item.id);
+                    
+                    card.innerHTML = `
+                        <span class="text-4xl">${item.icon}</span>
+                        <p class="font-bold text-lg text-slate-700">${item.text}</p>
+                    `;
 
-                draggable.addEventListener('dragend', function() {
-                    draggedItem = null;
-                    this.classList.remove('opacity-50');
+                    // Setup Drag Events for each new card
+                    card.addEventListener('dragstart', function(e) {
+                        draggedItem = this;
+                        setTimeout(() => this.classList.add('opacity-50'), 0);
+                    });
+
+                    card.addEventListener('dragend', function() {
+                        draggedItem = null;
+                        this.classList.remove('opacity-50');
+                    });
+
+                    deckContainer.appendChild(card);
                 });
-            });
+            }
 
             // Setup Drop Zone Events
             dropZones.forEach(zone => {
                 zone.addEventListener('dragover', function(e) {
-                    e.preventDefault(); // Necessary to allow dropping
+                    e.preventDefault(); 
                     this.classList.add('bg-opacity-70', 'scale-[1.02]');
                 });
 
@@ -208,15 +221,13 @@
                         // Correct Answer Logic
                         targetContainer.appendChild(draggedItem);
                         
-                        // Change styling to look "locked in"
+                        // Lock the card in place
                         draggedItem.setAttribute('draggable', 'false');
                         draggedItem.classList.remove('cursor-grab', 'active:cursor-grabbing');
                         draggedItem.classList.add('cursor-default', 'border-green-400', 'bg-white');
                         
                         showFeedback('Great Job! Correct!', 'text-green-600');
                         spawnSmiley(e.clientX, e.clientY);
-
-                        // Check for win condition
                         checkWin();
 
                     } else {
@@ -234,44 +245,43 @@
                 });
             });
 
-            // Feedback Message Manager
             function showFeedback(text, colorClass) {
                 feedbackMsg.textContent = text;
                 feedbackMsg.className = `text-3xl font-black transition-opacity duration-300 ${colorClass}`;
                 feedbackMsg.classList.remove('opacity-0');
                 
-                // Hide after 2 seconds
                 setTimeout(() => {
                     feedbackMsg.classList.add('opacity-0');
                 }, 2000);
             }
 
-            // Spawn floating smiley face at mouse coordinates
             function spawnSmiley(x, y) {
                 const smiley = document.createElement('div');
                 smiley.textContent = '😊';
                 smiley.className = 'float-smiley';
                 
-                // Position exactly where dropped
+                // Position exactly where dropped, minus a small offset to center on the cursor
                 smiley.style.left = `${x - 20}px`; 
                 smiley.style.top = `${y - 20}px`;
                 
                 document.body.appendChild(smiley);
 
-                // Cleanup DOM after animation finishes
                 setTimeout(() => {
                     smiley.remove();
                 }, 1500);
             }
 
             function checkWin() {
-                const remainingCards = document.querySelector('#card-deck').children.length;
+                const remainingCards = deckContainer.children.length;
                 if (remainingCards === 0) {
                     setTimeout(() => {
                         showFeedback('🎉 YOU CAUGHT THEM ALL! PERFECT LOGIC! 🎉', 'text-yellow-500 text-5xl');
                     }, 500);
                 }
             }
+
+            // 3. Initialize the game by rendering the cards
+            renderCards();
         });
     </script>
 </body>
