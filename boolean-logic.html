@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokémon Boolean Logic: True or False!</title>
+    <title>Pokémon Logic: The 50-Question Challenge!</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap');
@@ -15,7 +15,6 @@
             background-size: 30px 30px;
         }
 
-        /* Pokédex Header Style */
         .pokedex-header {
             background-color: #EF5350;
             border-bottom: 8px solid #B71C1C;
@@ -27,10 +26,16 @@
             box-shadow: inset -4px -4px 0px rgba(0,0,0,0.2);
         }
 
-        /* Drag and Drop styling */
+        .digital-screen {
+            background-color: #222;
+            color: #4ade80;
+            font-family: monospace;
+            box-shadow: inset 0px 0px 10px rgba(0,0,0,0.8);
+        }
+
         .draggable-card {
             cursor: grab;
-            transition: transform 0.1s;
+            transition: transform 0.1s, opacity 0.2s;
         }
         
         .draggable-card:active {
@@ -38,250 +43,316 @@
             transform: scale(1.05);
         }
 
-        /* Shake animation for wrong answers */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px) rotate(-3deg); }
-            50% { transform: translateX(8px) rotate(3deg); }
-            75% { transform: translateX(-8px) rotate(-3deg); }
-        }
-        .shake-animation {
-            animation: shake 0.4s ease-in-out;
-        }
-
-        /* Floating smiley face animation */
+        /* Float up animation for correct smiley */
         @keyframes floatUp {
             0% { transform: translateY(0) scale(0.5); opacity: 0; }
-            50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
-            100% { transform: translateY(-40px) scale(1); opacity: 0; }
+            50% { transform: translateY(-30px) scale(1.5); opacity: 1; }
+            100% { transform: translateY(-60px) scale(1); opacity: 0; }
         }
         .float-smiley {
-            animation: floatUp 1.5s ease-out forwards;
+            animation: floatUp 1.2s ease-out forwards;
             position: absolute;
             pointer-events: none;
-            font-size: 4rem;
+            font-size: 5rem;
             z-index: 50;
+        }
+
+        /* Fade out animation when card is answered */
+        .fade-out {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center pb-10">
+<body class="min-h-screen flex flex-col items-center pb-10 overflow-x-hidden">
 
-    <!-- Header Section -->
-    <header class="pokedex-header w-full p-6 shadow-lg rounded-b-3xl flex items-center gap-6 justify-center">
-        <div class="lens w-16 h-16 rounded-full"></div>
-        <div class="flex gap-2">
-            <div class="w-4 h-4 rounded-full bg-red-400 border-2 border-white"></div>
-            <div class="w-4 h-4 rounded-full bg-yellow-400 border-2 border-white"></div>
-            <div class="w-4 h-4 rounded-full bg-green-400 border-2 border-white"></div>
+    <!-- Header & Scoreboard Section -->
+    <header class="pokedex-header w-full p-4 sm:p-6 shadow-lg rounded-b-3xl flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="lens w-12 h-12 sm:w-16 sm:h-16 rounded-full"></div>
+            <div class="flex gap-2">
+                <div class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-red-400 border-2 border-white"></div>
+                <div class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-yellow-400 border-2 border-white"></div>
+                <div class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-green-400 border-2 border-white"></div>
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-black text-white ml-2 sm:ml-4 tracking-wide" style="text-shadow: 2px 2px 0px #B71C1C;">
+                Pokémon Logic Test
+            </h1>
         </div>
-        <h1 class="text-4xl font-black text-white ml-4 tracking-wide" style="text-shadow: 2px 2px 0px #B71C1C;">
-            Pokémon Logic: TRUE or FALSE!
-        </h1>
+        
+        <!-- Digital Scoreboard -->
+        <div class="digital-screen px-6 py-2 rounded-xl border-4 border-gray-600 flex flex-col items-center">
+            <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">Score</span>
+            <div class="text-3xl sm:text-4xl font-black tracking-wider" id="score-display">0/0</div>
+        </div>
     </header>
 
     <!-- Instructions -->
-    <div class="max-w-4xl w-full mt-8 px-4 text-center">
-        <h2 class="text-2xl font-extrabold text-slate-700 bg-white p-4 rounded-2xl shadow-sm border-4 border-slate-200">
-            Read the clues carefully! Watch out for words like <span class="text-blue-600">AND</span> and <span class="text-red-500">OR</span>. Drag the Pokémon cards into the correct box!
+    <div class="max-w-4xl w-full mt-6 px-4 text-center">
+        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-700 bg-white p-4 rounded-2xl shadow-sm border-4 border-slate-200">
+            Read the clues! Look out for <span class="text-blue-600">AND</span> / <span class="text-red-500">OR</span>. Drop the card into TRUE or FALSE. <br>
+            <span class="text-lg text-slate-500">Cards disappear once answered. Try to get a perfect score!</span>
         </h2>
     </div>
 
     <!-- Feedback Message Area -->
-    <div class="h-16 mt-4 flex items-center justify-center">
-        <p id="feedback-msg" class="text-3xl font-black opacity-0 transition-opacity duration-300"></p>
+    <div class="h-12 mt-2 flex items-center justify-center">
+        <p id="feedback-msg" class="text-3xl font-black opacity-0 transition-opacity duration-200"></p>
     </div>
 
     <!-- Main Game Area -->
-    <div class="max-w-6xl w-full flex flex-col lg:flex-row gap-8 px-6 mt-4">
+    <div class="max-w-6xl w-full flex flex-col lg:flex-row gap-8 px-6 mt-2">
         
-        <!-- Draggable Items Container (The "Deck") -->
-        <div class="w-full lg:w-1/3 bg-white p-6 rounded-3xl shadow-xl border-8 border-yellow-400 min-h-[400px]">
-            <h3 class="text-xl font-bold text-yellow-600 text-center mb-4 uppercase tracking-widest">Pokémon Cards</h3>
+        <!-- Draggable Items Container (The "Hand") -->
+        <div class="w-full lg:w-1/3 bg-white p-6 rounded-3xl shadow-xl border-8 border-yellow-400 min-h-[500px] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-yellow-600 uppercase tracking-widest">Your Hand</h3>
+                <span class="text-sm font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full" id="cards-left-display">50 Left</span>
+            </div>
             
-            <!-- This deck is now empty! JS will populate it based on the JSON data -->
-            <div id="card-deck" class="flex flex-col gap-4"></div>
+            <div id="card-deck" class="flex flex-col gap-3 flex-grow">
+                <!-- Cards injected here by JS -->
+            </div>
         </div>
 
         <!-- Drop Zones Container -->
         <div class="w-full lg:w-2/3 flex flex-col sm:flex-row gap-6 relative">
             
             <!-- TRUE Zone -->
-            <div class="drop-zone w-full sm:w-1/2 bg-green-100 border-dashed border-8 border-green-400 rounded-3xl p-6 flex flex-col items-center transition-colors duration-200"
+            <div class="drop-zone w-full sm:w-1/2 bg-green-100 border-dashed border-8 border-green-400 rounded-3xl p-6 flex flex-col items-center justify-center transition-all duration-200 min-h-[300px] lg:min-h-[500px]"
                  data-zone="true">
-                <div class="bg-green-500 text-white w-20 h-20 rounded-full flex items-center justify-center text-5xl font-black mb-4 shadow-md">✓</div>
-                <h3 class="text-3xl font-black text-green-700 mb-6">TRUE</h3>
-                <div class="drop-target w-full flex flex-col gap-3 min-h-[300px]"></div>
+                <div class="bg-green-500 text-white w-24 h-24 rounded-full flex items-center justify-center text-6xl font-black mb-4 shadow-md pointer-events-none">✓</div>
+                <h3 class="text-4xl font-black text-green-700 pointer-events-none">TRUE</h3>
+                <p class="text-green-600 font-bold mt-4 pointer-events-none text-center">Drop correct statements here</p>
             </div>
 
             <!-- FALSE Zone -->
-            <div class="drop-zone w-full sm:w-1/2 bg-red-100 border-dashed border-8 border-red-400 rounded-3xl p-6 flex flex-col items-center transition-colors duration-200"
+            <div class="drop-zone w-full sm:w-1/2 bg-red-100 border-dashed border-8 border-red-400 rounded-3xl p-6 flex flex-col items-center justify-center transition-all duration-200 min-h-[300px] lg:min-h-[500px]"
                  data-zone="false">
-                <div class="bg-red-500 text-white w-20 h-20 rounded-full flex items-center justify-center text-5xl font-black mb-4 shadow-md">X</div>
-                <h3 class="text-3xl font-black text-red-700 mb-6">FALSE</h3>
-                <div class="drop-target w-full flex flex-col gap-3 min-h-[300px]"></div>
+                <div class="bg-red-500 text-white w-24 h-24 rounded-full flex items-center justify-center text-6xl font-black mb-4 shadow-md pointer-events-none">X</div>
+                <h3 class="text-4xl font-black text-red-700 pointer-events-none">FALSE</h3>
+                <p class="text-red-600 font-bold mt-4 pointer-events-none text-center">Drop incorrect statements here</p>
             </div>
 
         </div>
     </div>
 
     <script>
-        // 1. Data Structure: Array of question objects
-        // To add a new question, just add an object to this array!
-        const lessonData = [
-            { 
-                id: "q1", 
-                icon: "⚡", 
-                text: "Pikachu is Yellow.", 
-                answer: "true" 
-            },
-            { 
-                id: "q2", 
-                icon: "🍃", 
-                text: "Bulbasaur is Green <span class='text-red-500'>AND</span> is a Fire type.", 
-                answer: "false" 
-            },
-            { 
-                id: "q3", 
-                icon: "💧", 
-                text: "Squirtle is Blue <span class='text-blue-600'>AND</span> has a shell.", 
-                answer: "true" 
-            },
-            { 
-                id: "q4", 
-                icon: "🔥", 
-                text: "Charmander is Blue <span class='text-red-500'>OR</span> Green.", 
-                answer: "false" 
-            },
-            { 
-                id: "q5", 
-                icon: "🔥", 
-                text: "Charmander is Orange <span class='text-blue-600'>OR</span> Purple.", 
-                answer: "true" 
-            }
+        // 1. Array of 50 Boolean Logic Questions
+        const masterLessonData = [
+            { id: "q1", icon: "⚡", text: "Pikachu is Yellow.", answer: "true" },
+            { id: "q2", icon: "💧", text: "Squirtle is a Fire type.", answer: "false" },
+            { id: "q3", icon: "🍃", text: "Bulbasaur has a plant on its back.", answer: "true" },
+            { id: "q4", icon: "🔥", text: "Charmander's tail is on fire.", answer: "true" },
+            { id: "q5", icon: "💤", text: "Snorlax loves to run fast.", answer: "false" },
+            { id: "q6", icon: "⚡", text: "Pikachu evolves from Pichu.", answer: "true" },
+            { id: "q7", icon: "🐾", text: "Eevee has only one evolution.", answer: "false" },
+            { id: "q8", icon: "🐢", text: "Squirtle has a shell <span class='text-blue-600 font-black'>AND</span> breathes water.", answer: "true" },
+            { id: "q9", icon: "🔥", text: "Charizard is a Water type <span class='text-blue-600 font-black'>AND</span> can fly.", answer: "false" },
+            { id: "q10", icon: "🍃", text: "Bulbasaur is Green <span class='text-blue-600 font-black'>AND</span> is a Grass type.", answer: "true" },
+            { id: "q11", icon: "🎤", text: "Jigglypuff is pink <span class='text-red-500 font-black'>OR</span> green.", answer: "true" },
+            { id: "q12", icon: "👻", text: "Gengar is a Normal type <span class='text-red-500 font-black'>OR</span> a Bug type.", answer: "false" },
+            { id: "q13", icon: "🐟", text: "Magikarp is very strong <span class='text-blue-600 font-black'>AND</span> has legs.", answer: "false" },
+            { id: "q14", icon: "🧠", text: "Mewtwo is a Psychic type.", answer: "true" },
+            { id: "q15", icon: "🐦", text: "Pidgey is a bird <span class='text-blue-600 font-black'>AND</span> can fly.", answer: "true" },
+            { id: "q16", icon: "🐛", text: "Caterpie is a Bug type.", answer: "true" },
+            { id: "q17", icon: "⚡", text: "Pikachu is blue <span class='text-red-500 font-black'>OR</span> yellow.", answer: "true" },
+            { id: "q18", icon: "🐱", text: "Meowth walks on two legs <span class='text-blue-600 font-black'>AND</span> can talk in the show.", answer: "true" },
+            { id: "q19", icon: "🪨", text: "Onix is made of rock <span class='text-blue-600 font-black'>AND</span> water.", answer: "false" },
+            { id: "q20", icon: "🐢", text: "Blastoise has cannons on its shell.", answer: "true" },
+            { id: "q21", icon: "🔥", text: "Vulpix has six tails.", answer: "true" },
+            { id: "q22", icon: "🦊", text: "Ninetales has ten tails.", answer: "false" },
+            { id: "q23", icon: "💧", text: "Psyduck holds its head <span class='text-blue-600 font-black'>AND</span> gets headaches.", answer: "true" },
+            { id: "q24", icon: "👻", text: "Gastly is made of gas <span class='text-red-500 font-black'>OR</span> rocks.", answer: "true" },
+            { id: "q25", icon: "💪", text: "Machamp has four arms.", answer: "true" },
+            { id: "q26", icon: "🐉", text: "Dragonite is tiny <span class='text-blue-600 font-black'>AND</span> weak.", answer: "false" },
+            { id: "q27", icon: "🐾", text: "Eevee can evolve into Flareon <span class='text-red-500 font-black'>OR</span> Jolteon.", answer: "true" },
+            { id: "q28", icon: "🦇", text: "Zubat has eyes <span class='text-blue-600 font-black'>AND</span> can see perfectly.", answer: "false" },
+            { id: "q29", icon: "🐕", text: "Growlithe is a puppy <span class='text-blue-600 font-black'>AND</span> breathes fire.", answer: "true" },
+            { id: "q30", icon: "🌸", text: "Oddish looks like a radish.", answer: "true" },
+            { id: "q31", icon: "⚡", text: "Voltorb looks like a Pokeball <span class='text-blue-600 font-black'>AND</span> is electric.", answer: "true" },
+            { id: "q32", icon: "🐎", text: "Ponyta has flames for hair.", answer: "true" },
+            { id: "q33", icon: "🧲", text: "Magnemite is a Grass type <span class='text-red-500 font-black'>OR</span> a Water type.", answer: "false" },
+            { id: "q34", icon: "🐦", text: "Farfetch'd holds a leek <span class='text-red-500 font-black'>OR</span> a carrot.", answer: "true" },
+            { id: "q35", icon: "🦭", text: "Seel is a seal <span class='text-blue-600 font-black'>AND</span> lives in lava.", answer: "false" },
+            { id: "q36", icon: "🟣", text: "Ditto can transform into other Pokémon.", answer: "true" },
+            { id: "q37", icon: "🐟", text: "Gyarados evolves from Magikarp.", answer: "true" },
+            { id: "q38", icon: "🐉", text: "Gyarados is a tiny fish <span class='text-blue-600 font-black'>AND</span> cannot swim.", answer: "false" },
+            { id: "q39", icon: "🧊", text: "Lapras has a shell on its back.", text: "Lapras has a shell on its back.", answer: "true" },
+            { id: "q40", icon: "🦊", text: "Eevee is a Water type <span class='text-red-500 font-black'>OR</span> a Fire type.", answer: "false" },
+            { id: "q41", icon: "🌟", text: "Staryu is shaped like a star <span class='text-blue-600 font-black'>AND</span> lives in water.", answer: "true" },
+            { id: "q42", icon: "⚔️", text: "Scyther has blades on its arms.", answer: "true" },
+            { id: "q43", icon: "🐮", text: "Tauros has three tails.", answer: "true" },
+            { id: "q44", icon: "🐠", text: "Goldeen is a bird <span class='text-blue-600 font-black'>AND</span> flies in the sky.", answer: "false" },
+            { id: "q45", icon: "⚡", text: "Electabuzz is yellow <span class='text-red-500 font-black'>OR</span> black.", answer: "true" },
+            { id: "q46", icon: "🔥", text: "Magmar is a Grass type <span class='text-red-500 font-black'>OR</span> Ice type.", answer: "false" },
+            { id: "q47", icon: "🦖", text: "Aerodactyl is a dinosaur <span class='text-blue-600 font-black'>AND</span> can fly.", answer: "true" },
+            { id: "q48", icon: "💤", text: "Snorlax is green <span class='text-blue-600 font-black'>AND</span> never sleeps.", answer: "false" },
+            { id: "q49", icon: "❄️", text: "Articuno is an Ice bird.", answer: "true" },
+            { id: "q50", icon: "👑", text: "Mew is the heaviest Pokémon <span class='text-red-500 font-black'>OR</span> the tallest.", answer: "false" }
         ];
 
         document.addEventListener('DOMContentLoaded', () => {
             const deckContainer = document.getElementById('card-deck');
             const dropZones = document.querySelectorAll('.drop-zone');
             const feedbackMsg = document.getElementById('feedback-msg');
+            const scoreDisplay = document.getElementById('score-display');
+            const cardsLeftDisplay = document.getElementById('cards-left-display');
 
+            // Game State
+            let questionPool = [];
+            let scoreCorrect = 0;
+            let questionsAnswered = 0;
             let draggedItem = null;
 
-            // 2. Dynamic Rendering: Build cards from JSON
-            function renderCards() {
-                lessonData.forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = 'draggable-card bg-slate-50 border-4 border-slate-300 p-4 rounded-2xl shadow-sm flex items-center gap-4';
-                    card.setAttribute('draggable', 'true');
-                    card.setAttribute('data-answer', item.answer);
-                    card.setAttribute('id', item.id);
-                    
-                    card.innerHTML = `
-                        <span class="text-4xl">${item.icon}</span>
-                        <p class="font-bold text-lg text-slate-700">${item.text}</p>
-                    `;
+            // Initialize Game
+            function initGame() {
+                // Copy and shuffle the array
+                questionPool = [...masterLessonData].sort(() => Math.random() - 0.5);
+                scoreCorrect = 0;
+                questionsAnswered = 0;
+                updateScoreboard();
 
-                    // Setup Drag Events for each new card
-                    card.addEventListener('dragstart', function(e) {
-                        draggedItem = this;
-                        setTimeout(() => this.classList.add('opacity-50'), 0);
-                    });
-
-                    card.addEventListener('dragend', function() {
-                        draggedItem = null;
-                        this.classList.remove('opacity-50');
-                    });
-
-                    deckContainer.appendChild(card);
-                });
+                // Draw the first 5 cards
+                for(let i = 0; i < 5; i++) {
+                    drawNewCard();
+                }
             }
 
-            // Setup Drop Zone Events
+            // Draw a single card from the pool and add to hand
+            function drawNewCard() {
+                if (questionPool.length === 0) return; // No more cards to draw
+
+                const item = questionPool.pop();
+                cardsLeftDisplay.textContent = `${questionPool.length} Left in Deck`;
+                
+                const card = document.createElement('div');
+                card.className = 'draggable-card bg-slate-50 border-4 border-slate-300 p-3 sm:p-4 rounded-2xl shadow-sm flex items-center gap-3 sm:gap-4';
+                card.setAttribute('draggable', 'true');
+                card.setAttribute('data-answer', item.answer);
+                card.setAttribute('id', item.id);
+                
+                card.innerHTML = `
+                    <span class="text-3xl sm:text-4xl">${item.icon}</span>
+                    <p class="font-bold text-base sm:text-lg text-slate-700 leading-tight">${item.text}</p>
+                `;
+
+                // Drag Events
+                card.addEventListener('dragstart', function(e) {
+                    draggedItem = this;
+                    setTimeout(() => this.classList.add('opacity-50'), 0);
+                });
+
+                card.addEventListener('dragend', function() {
+                    if(draggedItem) {
+                        this.classList.remove('opacity-50');
+                        draggedItem = null;
+                    }
+                });
+
+                deckContainer.appendChild(card);
+            }
+
+            // Setup Drop Zone Logic
             dropZones.forEach(zone => {
                 zone.addEventListener('dragover', function(e) {
                     e.preventDefault(); 
-                    this.classList.add('bg-opacity-70', 'scale-[1.02]');
+                    this.classList.add('bg-opacity-50', 'scale-[1.02]');
                 });
 
                 zone.addEventListener('dragleave', function() {
-                    this.classList.remove('bg-opacity-70', 'scale-[1.02]');
+                    this.classList.remove('bg-opacity-50', 'scale-[1.02]');
                 });
 
                 zone.addEventListener('drop', function(e) {
                     e.preventDefault();
-                    this.classList.remove('bg-opacity-70', 'scale-[1.02]');
+                    this.classList.remove('bg-opacity-50', 'scale-[1.02]');
                     
                     if (!draggedItem) return;
 
                     const expectedAnswer = draggedItem.getAttribute('data-answer');
                     const zoneType = this.getAttribute('data-zone');
-                    const targetContainer = this.querySelector('.drop-target');
 
+                    questionsAnswered++;
+
+                    // Check if Right or Wrong
                     if (expectedAnswer === zoneType) {
-                        // Correct Answer Logic
-                        targetContainer.appendChild(draggedItem);
-                        
-                        // Lock the card in place
-                        draggedItem.setAttribute('draggable', 'false');
-                        draggedItem.classList.remove('cursor-grab', 'active:cursor-grabbing');
-                        draggedItem.classList.add('cursor-default', 'border-green-400', 'bg-white');
-                        
-                        showFeedback('Great Job! Correct!', 'text-green-600');
-                        spawnSmiley(e.clientX, e.clientY);
-                        checkWin();
-
+                        scoreCorrect++;
+                        showFeedback('Correct! Great job!', 'text-green-600');
+                        spawnSmiley(e.clientX, e.clientY, '😊');
                     } else {
-                        // Wrong Answer Logic
-                        draggedItem.classList.add('shake-animation');
-                        draggedItem.classList.replace('border-slate-300', 'border-red-400');
-                        
-                        showFeedback('Oops! Try again!', 'text-red-500');
-
-                        setTimeout(() => {
-                            draggedItem.classList.remove('shake-animation');
-                            draggedItem.classList.replace('border-red-400', 'border-slate-300');
-                        }, 500);
+                        showFeedback('Oops! That was wrong!', 'text-red-500');
+                        spawnSmiley(e.clientX, e.clientY, '❌');
                     }
+
+                    updateScoreboard();
+
+                    // Animate card disappearing, then remove it and draw a new one
+                    draggedItem.classList.add('fade-out');
+                    const cardToRemove = draggedItem; // Store reference
+                    draggedItem = null; // Clear active dragged item
+                    
+                    setTimeout(() => {
+                        cardToRemove.remove();
+                        drawNewCard();
+                        checkWin();
+                    }, 200); 
                 });
             });
 
+            function updateScoreboard() {
+                scoreDisplay.textContent = `${scoreCorrect}/${questionsAnswered}`;
+                
+                // Color code the score slightly based on performance
+                if(questionsAnswered > 0) {
+                    const percentage = scoreCorrect / questionsAnswered;
+                    if(percentage >= 0.8) scoreDisplay.style.color = '#4ade80'; // Green
+                    else if(percentage >= 0.5) scoreDisplay.style.color = '#facc15'; // Yellow
+                    else scoreDisplay.style.color = '#f87171'; // Red
+                }
+            }
+
             function showFeedback(text, colorClass) {
-                feedbackMsg.textContent = text;
-                feedbackMsg.className = `text-3xl font-black transition-opacity duration-300 ${colorClass}`;
+                feedbackMsg.innerHTML = text;
+                feedbackMsg.className = `text-2xl sm:text-3xl font-black transition-opacity duration-200 ${colorClass}`;
                 feedbackMsg.classList.remove('opacity-0');
                 
                 setTimeout(() => {
                     feedbackMsg.classList.add('opacity-0');
-                }, 2000);
-            }
-
-            function spawnSmiley(x, y) {
-                const smiley = document.createElement('div');
-                smiley.textContent = '😊';
-                smiley.className = 'float-smiley';
-                
-                // Position exactly where dropped, minus a small offset to center on the cursor
-                smiley.style.left = `${x - 20}px`; 
-                smiley.style.top = `${y - 20}px`;
-                
-                document.body.appendChild(smiley);
-
-                setTimeout(() => {
-                    smiley.remove();
                 }, 1500);
             }
 
+            function spawnSmiley(x, y, emoji) {
+                const icon = document.createElement('div');
+                icon.textContent = emoji;
+                icon.className = 'float-smiley';
+                icon.style.left = `${x - 40}px`; 
+                icon.style.top = `${y - 40}px`;
+                document.body.appendChild(icon);
+
+                setTimeout(() => {
+                    icon.remove();
+                }, 1200);
+            }
+
             function checkWin() {
-                const remainingCards = deckContainer.children.length;
-                if (remainingCards === 0) {
+                // If deck container is empty, the game is fully over
+                if (deckContainer.children.length === 0) {
                     setTimeout(() => {
-                        showFeedback('🎉 YOU CAUGHT THEM ALL! PERFECT LOGIC! 🎉', 'text-yellow-500 text-5xl');
-                    }, 500);
+                        deckContainer.innerHTML = `
+                            <div class="flex flex-col items-center justify-center h-full text-center p-6">
+                                <h3 class="text-4xl font-black text-yellow-600 mb-4">Game Over!</h3>
+                                <p class="text-2xl font-bold text-slate-700 mb-6">Final Score: ${scoreCorrect} out of 50</p>
+                                <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition hover:scale-105">Play Again</button>
+                            </div>
+                        `;
+                    }, 300);
                 }
             }
 
-            // 3. Initialize the game by rendering the cards
-            renderCards();
+            // Start the game on load
+            initGame();
         });
     </script>
 </body>
